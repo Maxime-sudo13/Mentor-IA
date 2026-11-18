@@ -14,6 +14,17 @@ Aucune bibliothèque Python à installer : tout est écrit avec la bibliothèque
 
 ## Ce que fait la plateforme
 
+L'interface s'inspire des applis d'apprentissage ludiques (type Duolingo) : **une seule chose à l'écran à la fois**.
+
+- **Chemin de leçons** : chaque leçon est un rond sur un chemin ; la suivante se débloque quand la précédente est réussie.
+- **Leçon en petites étapes** : intro → notions courtes (une par écran) → quiz avec retour immédiat (vert / rouge) → défi de code. Une question ratée revient plus loin dans la leçon.
+- **XP, objectif du jour, série** : 25 à 29 XP par leçon réussie, 5 XP par notion révisée ; objectif réglable (10 / 20 / 30 / 50 XP par jour) ; la série compte les jours consécutifs de travail.
+- **Révisions** : quiz + « remets le code dans l'ordre » (les lignes de la solution d'une leçon déjà réussie, mélangées).
+- **Écrans de fin** : XP gagnés, précision, temps, puis célébration de la série et de l'objectif du jour.
+- **Mobile** : barre de navigation en bas (Apprendre / Réviser / Progrès). Sons générés par le navigateur, désactivables.
+
+Sous le capot :
+
 | Fonction | Comment c'est fait |
 |---|---|
 | Correction des exercices | De **vrais tests** exécutés sur le code de l'élève (jamais l'IA) |

@@ -128,6 +128,7 @@ def vue_lecon(lecon_id):
     return {
         "id": l["id"], "titre": l["titre"], "objectifs": l["objectifs"], "duree_min": l["duree_min"],
         "explication": l["explication"],
+        "quiz": l["quiz"],
         "exercice": {
             "consigne": ex["consigne"], "code_depart": ex["code_depart"],
             "tests": [t["desc"] for t in ex["tests"]],
@@ -142,6 +143,56 @@ def vue_lecon(lecon_id):
         "suivante": LECONS[LECONS.index(l) + 1]["id"] if LECONS.index(l) + 1 < len(LECONS) else None,
         "chat": PROG.chat_recent(lecon_id, 10),
     }
+
+
+# ------------------------------------------------------------------ XP et sessions façon « appli ludique »
+XP_LECON, XP_DEFI, XP_QUIZ, XP_REJOUER = 10, 15, 2, 5
+XP_REVISION, XP_REVISION_PARFAITE = 5, 5
+
+
+def vue_xp():
+    p = PROG.profil()
+    return {"total": PROG.xp_total(), "jour": PROG.xp_du_jour(), "objectif": p["objectif_xp"],
+            "semaine": PROG.xp_par_jour(7), "serie": PROG.serie()}
+
+
+def ordre_lignes(lecon_id):
+    """Lignes de la solution, pour l'exercice « remets le code dans l'ordre » (révisions)."""
+    lignes = [l for l in PAR_ID[lecon_id]["exercice"]["solution"].rstrip().split("\n") if l.strip()]
+    return lignes if 3 <= len(lignes) <= 10 else None
+
+
+def _bilan_xp(gain, raison, lecon_id=None):
+    """Ajoute l'XP et renvoie ce que l'écran de fin doit célébrer."""
+    avant = PROG.xp_du_jour()
+    objectif = PROG.profil()["objectif_xp"]
+    if gain > 0:
+        PROG.ajouter_xp(gain, raison, lecon_id)
+    apres = PROG.xp_du_jour()
+    return {"xp_gagne": gain, "xp_jour": apres, "objectif_xp": objectif, "xp_total": PROG.xp_total(),
+            "serie": PROG.serie(), "premier_du_jour": avant == 0 and apres > 0,
+            "objectif_atteint": avant < objectif <= apres}
+
+
+def fin_lecon(lecon_id, d):
+    l = PAR_ID[lecon_id]
+    if not PROG.etat_lecon(lecon_id)["reussie"]:
+        return {"erreur": "Le défi de code n'est pas encore réussi.", "xp_gagne": 0}
+    bons = max(0, min(int(d.get("quiz_bons", 0)), len(l["quiz"])))
+    if PROG.lecon_terminee_avant(lecon_id):
+        return _bilan_xp(XP_REJOUER + bons, "rejouer", lecon_id)
+    return _bilan_xp(XP_LECON + XP_DEFI + XP_QUIZ * bons, "lecon", lecon_id)
+
+
+def fin_revision(resultats):
+    gain, bilan = 0, {}
+    for lid, juste in resultats.items():
+        if lid in PAR_ID and lid in PROG.revisions_dues():
+            bilan[lid] = PROG.enregistrer_revision(lid, bool(juste))
+            gain += XP_REVISION
+    if bilan and all(resultats[l] for l in bilan):
+        gain += XP_REVISION_PARFAITE
+    return {**_bilan_xp(gain, "revision"), "notions": bilan}
 
 
 def coaching(lecon_id, res):
@@ -178,7 +229,7 @@ class Handler(BaseHTTPRequestHandler):
         chemin = urlparse(self.path).path
         if chemin == "/api/accueil":
             return self._json({"profil": PROG.profil(), "plan": plan_du_jour(), "parcours": vue_parcours(),
-                               "ia": TUTEUR.disponible(), "modele": TUTEUR.modele})
+                               "ia": TUTEUR.disponible(), "modele": TUTEUR.modele, "xp": vue_xp()})
         if chemin.startswith("/api/lecon/"):
             lid = chemin.rsplit("/", 1)[-1]
             if lid not in PAR_ID:
@@ -189,8 +240,12 @@ class Handler(BaseHTTPRequestHandler):
         if chemin == "/api/revisions":
             questions = []
             for lid in PROG.revisions_dues():
-                for i, q in enumerate(PAR_ID[lid]["quiz"]):
-                    questions.append({"lecon_id": lid, "lecon": PAR_ID[lid]["titre"], **q})
+                for q in PAR_ID[lid]["quiz"]:
+                    questions.append({"type": "quiz", "lecon_id": lid, "lecon": PAR_ID[lid]["titre"], **q})
+                lignes = ordre_lignes(lid)
+                if lignes:
+                    questions.append({"type": "ordre", "lecon_id": lid, "lecon": PAR_ID[lid]["titre"],
+                                      "consigne": PAR_ID[lid]["exercice"]["consigne"], "lignes": lignes})
             return self._json({"questions": questions})
         if chemin == "/api/journal":
             return self._json({"historique": PROG.historique(14), "difficultes": PROG.difficultes()})
@@ -263,6 +318,12 @@ class Handler(BaseHTTPRequestHandler):
                 return self._json({"texte": None, "info": "L'IA locale n'est pas active : relis l'exemple de code et les points « À retenir »."})
             return self._json({"texte": texte})
 
+        if chemin == "/api/fin_lecon":
+            return self._json(fin_lecon(lid, d))
+
+        if chemin == "/api/fin_revision":
+            return self._json(fin_revision(d.get("resultats") or {}))
+
         if chemin == "/api/revision":
             return self._json(PROG.enregistrer_revision(lid, bool(d.get("tout_juste"))))
 
@@ -276,6 +337,10 @@ class Handler(BaseHTTPRequestHandler):
                 champs["prenom"] = str(d["prenom"])[:40]
             if "objectif_minutes" in d:
                 champs["objectif_minutes"] = max(10, min(240, int(d["objectif_minutes"])))
+            if "objectif_xp" in d:
+                champs["objectif_xp"] = max(10, min(200, int(d["objectif_xp"])))
+            if "sons" in d:
+                champs["sons"] = "1" if d["sons"] else "0"
             PROG.maj_profil(**champs, message_jour_date="")
             return self._json({"profil": PROG.profil()})
 

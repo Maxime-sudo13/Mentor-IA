@@ -35,9 +35,15 @@ de modèles « abliterated » (garde-fous retirés) pour des élèves.
 - `app/tuteur.py` : client Ollama, garde-fous, repli sans IA
 - `app/progression.py` : SQLite local `data/progression.db`
 - `content/*.json` : modules de cours (un fichier = un module)
-- `web/` : interface HTML/CSS/JS sans dépendance (hors ligne)
+- `web/` : interface HTML/CSS/JS sans dépendance (hors ligne), style « appli ludique » :
+  - routes : `#/` chemin de leçons, `#/lecon/<id>` lecteur plein écran, `#/revisions`, `#/progres` ;
+  - le lecteur découpe `explication` en « notions » d'un écran (`notions()` dans app.js : un texte + son illustration) et y intercale les questions `quiz` ;
+  - XP calculés **côté serveur** (`fin_lecon`, `fin_revision` dans serveur.py ; table `xp` dans progression.py) : 10 leçon + 15 défi + 2 par quiz juste du premier coup ; rejouer = 5 + quiz ; révision = 5 par notion (+5 si tout juste) ;
+  - `/api/revisions` renvoie aussi des exercices `ordre` (lignes de la solution à remettre dans l'ordre, solutions de 3 à 10 lignes) ;
+  - mascotte « Bit » : SVG original dessiné dans `mascotte()`. Ne pas reprendre la mascotte, le nom ou la charte graphique de Duolingo : on s'inspire des mécaniques, pas de la marque.
 - `outils/verifier_contenu.py` : à lancer après toute modif de contenu (chaque solution doit passer ses tests, le code de départ non)
 - `outils/tester_tuteur.py` : banc d'essai du tuteur contre le vrai modèle (12 situations d'élève × 3 essais, `--modele X` pour comparer), à relancer après toute modif de prompt ou de modèle ; détail dans `data/test_tuteur_*.json`. Les contrôles automatiques sont grossiers : relire les réponses.
+- `outils/construire_demo.py` : fabrique la démo en ligne (une page HTML où le vrai code Python tourne dans le navigateur via Pyodide ; fetch("/api/…") est redirigé vers `serveur.Handler`). Voir sa docstring.
 - Attention : un serveur lancé par l'utilisateur occupe souvent le port 8765 ; ne pas faire de test de bout en bout dessus (ça écrit dans SA `data/progression.db`).
 
 ## Prochaines étapes envisagées
