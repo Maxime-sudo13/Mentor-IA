@@ -1,5 +1,7 @@
 {
   "id": "python_bases",
+  "ordre": 1,
+  "icone": "🐍",
   "titre": "Bases de Python",
   "description": "Les fondations indispensables avant le machine learning : variables, conditions, boucles, structures de données et fonctions.",
   "lecons": [

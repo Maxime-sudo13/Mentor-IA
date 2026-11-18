@@ -205,6 +205,7 @@ async function chargerAccueil() {
 
 // ================================================================== page : le chemin
 const DECALAGES = [0, 46, 70, 46, 0, -46, -70, -46];
+const COULEURS = [["#ff7a1a", "#d95f05"], ["#2d8cf0", "#1d6fc4"], ["#8b5cf6", "#6d3fd6"], ["#2fb56b", "#1f8f51"]];
 
 async function pageChemin() {
   nav("apprendre");
@@ -227,10 +228,11 @@ async function pageChemin() {
         ${l.reussie ? `<div class="etoiles" title="Mémorisation ${l.maitrise}/5">${[1, 2, 3, 4, 5].map(n => `<i class="${n <= l.maitrise ? "on" : ""}"></i>`).join("")}</div>` : ""}
       </div>`;
     }).join("");
-    return `<section>
+    const [c, cf] = COULEURS[im % COULEURS.length];
+    return `<section style="--c:${c};--c-fonce:${cf}">
       <div class="unite"><div><small>Module ${im + 1} · ${faites}/${m.lecons.length}</small><h2>${esc(m.titre)}</h2>
         <div class="jauge-unite"><div style="width:${(faites / m.lecons.length) * 100}%"></div></div></div>
-        <span style="font-size:2rem">🐍</span></div>
+        <span style="font-size:2rem">${esc(m.icone || "📘")}</span></div>
       <div class="chemin">${noeuds}</div></section>`;
   }).join("");
 

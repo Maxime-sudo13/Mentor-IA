@@ -1,0 +1,580 @@
+{
+  "id": "ia_a_la_main",
+  "ordre": 3,
+  "icone": "🧠",
+  "titre": "L'IA à la main",
+  "description": "Les idées clés de l'IA, codées en Python pur : vecteurs, distances, k plus proches voisins, régression, neurone et descente de gradient.",
+  "lecons": [
+    {
+      "id": "vecteurs",
+      "titre": "Vecteurs et produit scalaire",
+      "duree_min": 20,
+      "objectifs": [
+        "Représenter des données par un vecteur",
+        "Calculer un produit scalaire",
+        "Comprendre pourquoi c'est au cœur de l'IA"
+      ],
+      "explication": "Pour une IA, tout devient une liste de nombres : un **vecteur**. Une maison peut être décrite par `[surface, pièces, étage]`, un mot par quelques centaines de nombres.\n\n```python\nmaison = [85, 4, 2]     # 85 m², 4 pièces, 2e étage\n```\n\nLe **produit scalaire** de deux vecteurs de même taille multiplie les éléments deux à deux, puis additionne tout :\n\n```python\na = [1, 2, 3]\nb = [4, 5, 6]\n# 1×4 + 2×5 + 3×6 = 32\nsum(x * y for x, y in zip(a, b))   # 32\n```\n\nPourquoi c'est si important ? Un modèle d'IA donne un **poids** à chaque caractéristique, et sa prédiction commence par le produit scalaire entre les données et les poids. Les réseaux de neurones en calculent des milliards.\n\n```python\npoids = [3000, 5000, -1000]\nsum(x * w for x, w in zip(maison, poids))   # 273000 : une estimation de prix\n```\n",
+      "exercice": {
+        "consigne": "Écris `produit_scalaire(a, b)`. Si les deux vecteurs n'ont pas la même longueur, lève une `ValueError`.",
+        "code_depart": "def produit_scalaire(a, b):\n    pass\n",
+        "tests": [
+          {
+            "desc": "produit_scalaire([1, 2, 3], [4, 5, 6]) renvoie 32",
+            "code": "assert produit_scalaire([1, 2, 3], [4, 5, 6]) == 32"
+          },
+          {
+            "desc": "Fonctionne avec des nombres négatifs",
+            "code": "assert produit_scalaire([1, -1], [5, 5]) == 0"
+          },
+          {
+            "desc": "Vecteurs vides → 0",
+            "code": "assert produit_scalaire([], []) == 0"
+          },
+          {
+            "desc": "Longueurs différentes → ValueError",
+            "code": "try:\n    produit_scalaire([1, 2], [1])\n    assert False, 'pas d erreur'\nexcept ValueError:\n    pass"
+          }
+        ],
+        "indices": [
+          "Commence par comparer len(a) et len(b) ; si elles diffèrent : raise ValueError(\"...\").",
+          "zip(a, b) donne les paires (a[i], b[i]) : il reste à multiplier puis additionner.",
+          "return sum(x * y for x, y in zip(a, b))"
+        ],
+        "solution": "def produit_scalaire(a, b):\n    if len(a) != len(b):\n        raise ValueError(\"Les vecteurs doivent avoir la même longueur\")\n    return sum(x * y for x, y in zip(a, b))\n"
+      },
+      "quiz": [
+        {
+          "q": "Que vaut le produit scalaire de `[2, 0]` et `[0, 3]` ?",
+          "choix": [
+            "6",
+            "0",
+            "5",
+            "[0, 0]"
+          ],
+          "bonne": 1,
+          "explication": "2×0 + 0×3 = 0. Un produit scalaire nul signifie que les vecteurs sont « perpendiculaires »."
+        },
+        {
+          "q": "Dans un modèle, un poids négatif sur une caractéristique signifie…",
+          "choix": [
+            "Qu'elle est ignorée",
+            "Que plus elle est grande, plus la prédiction baisse",
+            "Que le modèle a planté",
+            "Qu'elle est manquante"
+          ],
+          "bonne": 1,
+          "explication": "Le poids multiplie la caractéristique : négatif, il tire la prédiction vers le bas."
+        }
+      ]
+    },
+    {
+      "id": "distance",
+      "titre": "Distance entre deux points",
+      "duree_min": 15,
+      "objectifs": [
+        "Calculer une distance euclidienne",
+        "Utiliser math.sqrt",
+        "Relier distance et ressemblance"
+      ],
+      "explication": "Deux données « se ressemblent » si leurs vecteurs sont proches. On mesure cette proximité avec la **distance euclidienne**, le théorème de Pythagore généralisé :\n\n```python\nimport math\na = [0, 0]\nb = [3, 4]\nmath.sqrt((3 - 0) ** 2 + (4 - 0) ** 2)   # 5.0\n```\n\nLa formule marche quel que soit le nombre de dimensions : on additionne les carrés des différences, puis on prend la racine.\n\n```python\nmath.sqrt(sum((x - y) ** 2 for x, y in zip(a, b)))\n```\n\nC'est ce que font les moteurs de recommandation : « les clients proches de toi ont aimé… ». Et les recherches « par le sens » dans les textes reposent sur la même idée.\n",
+      "exercice": {
+        "consigne": "Écris `distance(a, b)` qui renvoie la distance euclidienne entre deux vecteurs de même longueur.",
+        "code_depart": "import math\n\ndef distance(a, b):\n    pass\n",
+        "tests": [
+          {
+            "desc": "distance([0, 0], [3, 4]) renvoie 5.0",
+            "code": "assert distance([0, 0], [3, 4]) == 5.0"
+          },
+          {
+            "desc": "Un point est à distance 0 de lui-même",
+            "code": "assert distance([1, 2, 3], [1, 2, 3]) == 0"
+          },
+          {
+            "desc": "Fonctionne en 3 dimensions",
+            "code": "assert round(distance([1, 1, 1], [2, 2, 2]), 4) == 1.7321"
+          },
+          {
+            "desc": "La distance est symétrique",
+            "code": "assert distance([5, -2], [1, 1]) == distance([1, 1], [5, -2])"
+          }
+        ],
+        "indices": [
+          "Calcule (x - y) ** 2 pour chaque paire de zip(a, b), puis additionne.",
+          "Il reste à prendre la racine carrée avec math.sqrt(...).",
+          "return math.sqrt(sum((x - y) ** 2 for x, y in zip(a, b)))"
+        ],
+        "solution": "import math\n\ndef distance(a, b):\n    return math.sqrt(sum((x - y) ** 2 for x, y in zip(a, b)))\n"
+      },
+      "quiz": [
+        {
+          "q": "Quelle est la distance entre `[1, 1]` et `[4, 5]` ?",
+          "choix": [
+            "7",
+            "5",
+            "25",
+            "3"
+          ],
+          "bonne": 1,
+          "explication": "Différences 3 et 4 : racine de 9 + 16 = racine de 25 = 5."
+        },
+        {
+          "q": "Dans un système de recommandation, deux clients à faible distance…",
+          "choix": [
+            "N'ont rien en commun",
+            "Ont des goûts proches",
+            "Sont le même client",
+            "Doivent être supprimés"
+          ],
+          "bonne": 1,
+          "explication": "Une petite distance entre leurs vecteurs signifie des comportements similaires."
+        }
+      ]
+    },
+    {
+      "id": "normalisation",
+      "titre": "Mettre les données à l'échelle",
+      "duree_min": 20,
+      "objectifs": [
+        "Comprendre le problème des échelles",
+        "Appliquer la normalisation min-max",
+        "Gérer le cas d'une colonne constante"
+      ],
+      "explication": "Problème : dans `[surface, pièces]`, la surface vaut des centaines et les pièces moins de 10. Dans un calcul de distance, la surface écrase tout, comme si le nombre de pièces ne comptait pas.\n\nLa **normalisation min-max** ramène chaque caractéristique entre 0 et 1 :\n\n```python\n# valeur_normalisee = (v - min) / (max - min)\nsurfaces = [30, 60, 90]\n# → [0.0, 0.5, 1.0]\n```\n\nLe plus petit devient 0, le plus grand 1, et les autres se placent entre les deux en gardant leurs écarts relatifs.\n\nCas piège : si toutes les valeurs sont égales, `max - min` vaut 0 et on diviserait par zéro. On renvoie alors des 0.\n\nCette étape, souvent oubliée par les débutants, change énormément les résultats des modèles basés sur des distances ou sur la descente de gradient.\n",
+      "exercice": {
+        "consigne": "Écris `normaliser(valeurs)` qui renvoie la liste normalisée min-max, chaque valeur arrondie à 3 décimales. Si toutes les valeurs sont égales, renvoie une liste de `0.0`.",
+        "code_depart": "def normaliser(valeurs):\n    pass\n",
+        "tests": [
+          {
+            "desc": "normaliser([30, 60, 90]) renvoie [0.0, 0.5, 1.0]",
+            "code": "assert normaliser([30, 60, 90]) == [0.0, 0.5, 1.0]"
+          },
+          {
+            "desc": "Arrondi à 3 décimales",
+            "code": "assert normaliser([0, 1, 3]) == [0.0, 0.333, 1.0]"
+          },
+          {
+            "desc": "Valeurs toutes égales → des 0.0",
+            "code": "assert normaliser([7, 7, 7]) == [0.0, 0.0, 0.0]"
+          },
+          {
+            "desc": "Fonctionne avec des négatifs",
+            "code": "assert normaliser([-10, 0, 10]) == [0.0, 0.5, 1.0]"
+          }
+        ],
+        "indices": [
+          "Calcule bas = min(valeurs) et haut = max(valeurs) une seule fois, avant la boucle.",
+          "Si haut == bas, renvoie [0.0] * len(valeurs).",
+          "return [round((v - bas) / (haut - bas), 3) for v in valeurs]"
+        ],
+        "solution": "def normaliser(valeurs):\n    bas, haut = min(valeurs), max(valeurs)\n    if haut == bas:\n        return [0.0] * len(valeurs)\n    return [round((v - bas) / (haut - bas), 3) for v in valeurs]\n"
+      },
+      "quiz": [
+        {
+          "q": "Normalisée entre 10 et 20, que devient la valeur 15 ?",
+          "choix": [
+            "15",
+            "0.15",
+            "0.5",
+            "1.5"
+          ],
+          "bonne": 2,
+          "explication": "(15 - 10) / (20 - 10) = 0.5 : elle est pile au milieu."
+        },
+        {
+          "q": "Pourquoi normaliser avant de calculer des distances ?",
+          "choix": [
+            "Pour aller plus vite",
+            "Pour que chaque caractéristique pèse de façon comparable",
+            "Pour supprimer les erreurs",
+            "Ce n'est jamais utile"
+          ],
+          "bonne": 1,
+          "explication": "Sans ça, la caractéristique aux plus grands nombres domine la distance."
+        }
+      ]
+    },
+    {
+      "id": "knn",
+      "titre": "Ton premier classifieur : les k plus proches voisins",
+      "duree_min": 30,
+      "objectifs": [
+        "Comprendre l'idée d'un classifieur",
+        "Trouver les k exemples les plus proches",
+        "Voter à la majorité"
+      ],
+      "explication": "Un **classifieur** range une donnée dans une catégorie : spam ou non, chat ou chien… L'algorithme des **k plus proches voisins** (k-NN) est le plus simple qui existe.\n\nIl garde des **exemples étiquetés** :\n\n```python\nexemples = [\n    ([1, 1], \"rouge\"),\n    ([2, 1], \"rouge\"),\n    ([8, 9], \"bleu\"),\n    ([9, 8], \"bleu\"),\n]\n```\n\nPour prédire la catégorie d'un nouveau point :\n1. calculer sa distance à chaque exemple ;\n2. garder les k exemples les plus proches ;\n3. renvoyer l'étiquette la plus fréquente parmi eux.\n\n```python\nvoisins = sorted(exemples, key=lambda e: distance(point, e[0]))[:k]\n```\n\nAvec k = 3, un point en `[2, 2]` a deux voisins rouges et un bleu : il est classé « rouge ». Pas d'apprentissage complexe : l'algorithme se contente de mémoriser les exemples. On choisit souvent un k impair pour éviter les égalités.\n",
+      "exercice": {
+        "consigne": "Écris `predire(point, exemples, k)` : `exemples` est une liste de paires `(vecteur, etiquette)`. Renvoie l'étiquette majoritaire parmi les `k` exemples les plus proches de `point`. La fonction `distance` est déjà fournie.",
+        "code_depart": "import math\nfrom collections import Counter\n\ndef distance(a, b):\n    return math.sqrt(sum((x - y) ** 2 for x, y in zip(a, b)))\n\ndef predire(point, exemples, k):\n    # 1. trier les exemples par distance au point\n    # 2. garder les k premiers\n    # 3. vote à la majorité\n    pass\n",
+        "tests": [
+          {
+            "desc": "Un point proche des rouges est rouge",
+            "code": "ex = [([1, 1], 'rouge'), ([2, 1], 'rouge'), ([8, 9], 'bleu'), ([9, 8], 'bleu')]\nassert predire([2, 2], ex, 3) == 'rouge'"
+          },
+          {
+            "desc": "Un point proche des bleus est bleu",
+            "code": "ex = [([1, 1], 'rouge'), ([2, 1], 'rouge'), ([8, 9], 'bleu'), ([9, 8], 'bleu')]\nassert predire([7, 7], ex, 3) == 'bleu'"
+          },
+          {
+            "desc": "k = 1 : le plus proche décide",
+            "code": "ex = [([0], 'a'), ([10], 'b'), ([11], 'b')]\nassert predire([1], ex, 1) == 'a'"
+          },
+          {
+            "desc": "Le vote compte : k = 3 donne la majorité",
+            "code": "ex = [([0], 'a'), ([3], 'b'), ([4], 'b'), ([20], 'a')]\nassert predire([1], ex, 3) == 'b'"
+          }
+        ],
+        "indices": [
+          "voisins = sorted(exemples, key=lambda e: distance(point, e[0]))[:k]",
+          "Récupère les étiquettes des voisins : [e[1] for e in voisins].",
+          "return Counter(etiquettes).most_common(1)[0][0]"
+        ],
+        "solution": "import math\nfrom collections import Counter\n\ndef distance(a, b):\n    return math.sqrt(sum((x - y) ** 2 for x, y in zip(a, b)))\n\ndef predire(point, exemples, k):\n    voisins = sorted(exemples, key=lambda e: distance(point, e[0]))[:k]\n    etiquettes = [e[1] for e in voisins]\n    return Counter(etiquettes).most_common(1)[0][0]\n"
+      },
+      "quiz": [
+        {
+          "q": "Que fait l'algorithme k-NN pendant son « entraînement » ?",
+          "choix": [
+            "Il calcule des poids",
+            "Il mémorise simplement les exemples",
+            "Il trie les catégories",
+            "Il supprime les doublons"
+          ],
+          "bonne": 1,
+          "explication": "Tout le travail se fait au moment de prédire : l'entraînement consiste à garder les exemples."
+        },
+        {
+          "q": "Pourquoi choisir un k impair avec deux catégories ?",
+          "choix": [
+            "C'est plus rapide",
+            "Pour éviter les égalités au vote",
+            "Python l'exige",
+            "Pour avoir plus de voisins"
+          ],
+          "bonne": 1,
+          "explication": "Avec un nombre impair de votants et deux catégories, il y a toujours une majorité."
+        }
+      ]
+    },
+    {
+      "id": "mesurer",
+      "titre": "Mesurer la qualité d'un modèle",
+      "duree_min": 20,
+      "objectifs": [
+        "Calculer l'exactitude d'un classifieur",
+        "Calculer l'erreur quadratique moyenne",
+        "Choisir la bonne mesure"
+      ],
+      "explication": "Un modèle sans mesure de qualité, c'est une boîte noire. On compare ses **prédictions** aux **vraies valeurs**, sur des exemples qu'il n'a pas vus pendant l'entraînement.\n\nPour une **classification** (catégories), on mesure l'**exactitude** : la part de bonnes réponses.\n\n```python\nvraies   = [\"chat\", \"chien\", \"chat\", \"chat\"]\npredites = [\"chat\", \"chat\",  \"chat\", \"chat\"]\n# 3 bonnes sur 4 → exactitude 0.75\n```\n\nPour une **régression** (prédire un nombre), on mesure l'**erreur quadratique moyenne** (EQM, ou MSE en anglais) : la moyenne des carrés des écarts.\n\n```python\nvraies   = [10, 20, 30]\npredites = [12, 18, 30]\n# écarts 2, -2, 0 → carrés 4, 4, 0 → moyenne 2.67\n```\n\nLe carré rend tous les écarts positifs et punit plus fort les grosses erreurs. Une EQM de 0 signifie des prédictions parfaites.\n\nAttention : un modèle qui répond toujours « chat » obtient ici 75 % d'exactitude sans rien comprendre. Une mesure se compare toujours à une référence simple.\n",
+      "exercice": {
+        "consigne": "Écris deux fonctions : `exactitude(vraies, predites)` renvoie la part de prédictions identiques (entre 0 et 1, arrondie à 3 décimales) ; `eqm(vraies, predites)` renvoie l'erreur quadratique moyenne, arrondie à 3 décimales.",
+        "code_depart": "def exactitude(vraies, predites):\n    pass\n\ndef eqm(vraies, predites):\n    pass\n",
+        "tests": [
+          {
+            "desc": "exactitude : 3 bonnes sur 4 → 0.75",
+            "code": "assert exactitude(['c', 'd', 'c', 'c'], ['c', 'c', 'c', 'c']) == 0.75"
+          },
+          {
+            "desc": "exactitude arrondie à 3 décimales",
+            "code": "assert exactitude([1, 2, 3], [1, 0, 0]) == 0.333"
+          },
+          {
+            "desc": "eqm([10, 20, 30], [12, 18, 30]) renvoie 2.667",
+            "code": "assert eqm([10, 20, 30], [12, 18, 30]) == 2.667"
+          },
+          {
+            "desc": "eqm de prédictions parfaites → 0",
+            "code": "assert eqm([1.5, 2], [1.5, 2]) == 0"
+          }
+        ],
+        "indices": [
+          "exactitude : compte les paires égales avec sum(1 for v, p in zip(vraies, predites) if v == p), puis divise par la longueur.",
+          "eqm : additionne (v - p) ** 2 pour chaque paire, puis divise par la longueur.",
+          "return round(sum((v - p) ** 2 for v, p in zip(vraies, predites)) / len(vraies), 3)"
+        ],
+        "solution": "def exactitude(vraies, predites):\n    bonnes = sum(1 for v, p in zip(vraies, predites) if v == p)\n    return round(bonnes / len(vraies), 3)\n\ndef eqm(vraies, predites):\n    return round(sum((v - p) ** 2 for v, p in zip(vraies, predites)) / len(vraies), 3)\n"
+      },
+      "quiz": [
+        {
+          "q": "Sur 100 e-mails dont 95 normaux, un filtre qui dit toujours « normal » a une exactitude de…",
+          "choix": [
+            "5 %",
+            "50 %",
+            "95 %",
+            "100 %"
+          ],
+          "bonne": 2,
+          "explication": "95 % sans détecter un seul spam : l'exactitude seule peut tromper quand les catégories sont déséquilibrées."
+        },
+        {
+          "q": "Pourquoi l'EQM met-elle les écarts au carré ?",
+          "choix": [
+            "Pour aller plus vite",
+            "Pour que les écarts négatifs ne compensent pas les positifs, et punir les grosses erreurs",
+            "Pour avoir des nombres entiers",
+            "Par tradition seulement"
+          ],
+          "bonne": 1,
+          "explication": "Sans carré, +2 et -2 s'annuleraient ; le carré rend aussi une erreur de 10 bien plus coûteuse qu'une erreur de 1."
+        }
+      ]
+    },
+    {
+      "id": "regression",
+      "titre": "La régression linéaire",
+      "duree_min": 30,
+      "objectifs": [
+        "Modéliser une relation par une droite",
+        "Calculer la pente et l'ordonnée à l'origine",
+        "Faire une prédiction"
+      ],
+      "explication": "La **régression linéaire** cherche la droite `y = a × x + b` qui passe au plus près d'un nuage de points. Par exemple : prédire un prix (y) à partir d'une surface (x).\n\n- `a` est la **pente** : de combien y augmente quand x augmente de 1 ;\n- `b` est l'**ordonnée à l'origine** : la valeur de y quand x vaut 0.\n\nLa meilleure droite (celle qui minimise l'EQM) se calcule avec les moyennes :\n\n```python\nmx = sum(xs) / len(xs)\nmy = sum(ys) / len(ys)\na = sum((x - mx) * (y - my) for x, y in zip(xs, ys)) / sum((x - mx) ** 2 for x in xs)\nb = my - a * mx\n```\n\nEnsuite, prédire est immédiat :\n\n```python\nprix = a * 70 + b    # estimation pour 70 m²\n```\n\nC'est le modèle le plus ancien et le plus utilisé du machine learning. Ici on le calcule directement ; dans deux leçons, on le fera **apprendre** pas à pas, comme un réseau de neurones.\n",
+      "exercice": {
+        "consigne": "Écris `ajuster(xs, ys)` qui renvoie le tuple `(a, b)` de la meilleure droite, chaque valeur arrondie à 3 décimales.",
+        "code_depart": "def ajuster(xs, ys):\n    mx = sum(xs) / len(xs)\n    my = sum(ys) / len(ys)\n    # Calcule a, puis b\n    pass\n",
+        "tests": [
+          {
+            "desc": "Points exactement sur y = 2x + 1",
+            "code": "assert ajuster([0, 1, 2, 3], [1, 3, 5, 7]) == (2.0, 1.0)"
+          },
+          {
+            "desc": "Points sur une droite descendante",
+            "code": "assert ajuster([1, 2, 3], [10, 7, 4]) == (-3.0, 13.0)"
+          },
+          {
+            "desc": "Nuage de points imparfait",
+            "code": "assert ajuster([1, 2, 3, 4], [2, 4, 5, 8]) == (1.9, 0.0)"
+          }
+        ],
+        "indices": [
+          "Le numérateur de a : sum((x - mx) * (y - my) for x, y in zip(xs, ys)).",
+          "Le dénominateur de a : sum((x - mx) ** 2 for x in xs). Puis b = my - a * mx.",
+          "return round(a, 3), round(b, 3)"
+        ],
+        "solution": "def ajuster(xs, ys):\n    mx = sum(xs) / len(xs)\n    my = sum(ys) / len(ys)\n    a = sum((x - mx) * (y - my) for x, y in zip(xs, ys)) / sum((x - mx) ** 2 for x in xs)\n    b = my - a * mx\n    return round(a, 3), round(b, 3)\n"
+      },
+      "quiz": [
+        {
+          "q": "Avec `y = 3x + 2`, que prédit le modèle pour x = 4 ?",
+          "choix": [
+            "9",
+            "14",
+            "20",
+            "12"
+          ],
+          "bonne": 1,
+          "explication": "3 × 4 + 2 = 14."
+        },
+        {
+          "q": "Une pente `a` négative signifie que…",
+          "choix": [
+            "Le modèle est faux",
+            "y diminue quand x augmente",
+            "x est négatif",
+            "Il n'y a pas de relation"
+          ],
+          "bonne": 1,
+          "explication": "Chaque unité de x en plus retire |a| à la prédiction."
+        }
+      ]
+    },
+    {
+      "id": "neurone",
+      "titre": "Un neurone artificiel",
+      "duree_min": 25,
+      "objectifs": [
+        "Décomposer un neurone : somme pondérée + biais + activation",
+        "Coder la fonction sigmoïde",
+        "Faire calculer un neurone"
+      ],
+      "explication": "Un **neurone artificiel** fait trois choses :\n1. un produit scalaire entre ses **entrées** et ses **poids** ;\n2. il ajoute un **biais**, qui décale le résultat ;\n3. il passe le tout dans une **fonction d'activation**.\n\nLa **sigmoïde** est une activation classique : elle transforme n'importe quel nombre en une valeur entre 0 et 1, qu'on peut lire comme une probabilité.\n\n```python\nimport math\ndef sigmoide(z):\n    return 1 / (1 + math.exp(-z))\n\nsigmoide(0)     # 0.5\nsigmoide(5)     # 0.993  (proche de 1)\nsigmoide(-5)    # 0.007  (proche de 0)\n```\n\nUn neurone complet :\n\n```python\nz = sum(x * w for x, w in zip(entrees, poids)) + biais\nsortie = sigmoide(z)\n```\n\nUn réseau de neurones, c'est des milliers de ces petits calculs empilés en couches. « Apprendre », c'est trouver les bons poids et les bons biais. C'est le sujet de la leçon suivante.\n",
+      "exercice": {
+        "consigne": "Écris `sigmoide(z)` puis `neurone(entrees, poids, biais)` qui renvoie la sortie du neurone (sigmoïde de la somme pondérée plus le biais), arrondie à 4 décimales.",
+        "code_depart": "import math\n\ndef sigmoide(z):\n    pass\n\ndef neurone(entrees, poids, biais):\n    pass\n",
+        "tests": [
+          {
+            "desc": "sigmoide(0) renvoie 0.5",
+            "code": "assert sigmoide(0) == 0.5"
+          },
+          {
+            "desc": "La sigmoïde reste entre 0 et 1",
+            "code": "assert 0 < sigmoide(-10) < 0.001 and 0.999 < sigmoide(10) < 1"
+          },
+          {
+            "desc": "Neurone : somme nulle → 0.5",
+            "code": "assert neurone([1, 1], [1, -1], 0) == 0.5"
+          },
+          {
+            "desc": "Neurone avec poids et biais",
+            "code": "assert neurone([1, 2], [0.5, 1.5], -1) == 0.9241"
+          },
+          {
+            "desc": "Ce neurone calcule un « ET » logique",
+            "code": "et = lambda a, b: round(neurone([a, b], [10, 10], -15))\nassert [et(0, 0), et(0, 1), et(1, 0), et(1, 1)] == [0, 0, 0, 1]"
+          }
+        ],
+        "indices": [
+          "sigmoide : return 1 / (1 + math.exp(-z))",
+          "Dans neurone, calcule z = somme des entrees × poids + biais (zip t'aide).",
+          "return round(sigmoide(z), 4)"
+        ],
+        "solution": "import math\n\ndef sigmoide(z):\n    return 1 / (1 + math.exp(-z))\n\ndef neurone(entrees, poids, biais):\n    z = sum(x * w for x, w in zip(entrees, poids)) + biais\n    return round(sigmoide(z), 4)\n"
+      },
+      "quiz": [
+        {
+          "q": "Que vaut `sigmoide(z)` quand z est très grand ?",
+          "choix": [
+            "0",
+            "Presque 1",
+            "z",
+            "L'infini"
+          ],
+          "bonne": 1,
+          "explication": "1 / (1 + e^-z) tend vers 1 quand z grandit."
+        },
+        {
+          "q": "Que veut dire « entraîner » un réseau de neurones ?",
+          "choix": [
+            "Ajouter des neurones",
+            "Trouver les poids et biais qui donnent de bonnes prédictions",
+            "Le faire tourner plus vite",
+            "Écrire plus de code"
+          ],
+          "bonne": 1,
+          "explication": "La structure est fixée ; l'apprentissage ajuste les poids et les biais."
+        }
+      ]
+    },
+    {
+      "id": "gradient",
+      "titre": "Apprendre : la descente de gradient",
+      "duree_min": 30,
+      "objectifs": [
+        "Comprendre l'idée de minimiser une erreur",
+        "Utiliser une dérivée comme direction",
+        "Régler le pas d'apprentissage"
+      ],
+      "explication": "Imagine-toi dans le brouillard, en montagne, à chercher le fond de la vallée. Stratégie : sentir la pente sous tes pieds, faire un pas vers le bas, recommencer. C'est la **descente de gradient**.\n\nPrenons une « erreur » simple à minimiser : `f(x) = (x - 3) ** 2`. Son minimum est en x = 3. Sa **dérivée** (la pente) vaut `2 * (x - 3)` :\n- positive à droite de 3 → il faut reculer ;\n- négative à gauche → il faut avancer.\n\nÀ chaque étape, on fait un pas **à l'opposé de la pente** :\n\n```python\nx = 0\npas = 0.1\nfor _ in range(50):\n    pente = 2 * (x - 3)\n    x = x - pas * pente\n# x est maintenant très proche de 3\n```\n\nLe **pas** (learning rate) est crucial : trop petit, l'apprentissage est très lent ; trop grand, on saute par-dessus la vallée et on diverge.\n\nTous les réseaux de neurones, y compris les grands modèles de langage, apprennent avec cette idée : calculer la pente de l'erreur par rapport à chaque poids, et faire un petit pas dans la bonne direction.\n",
+      "exercice": {
+        "consigne": "Écris `descente(x0, pas, etapes)` qui part de `x0`, applique `etapes` fois la mise à jour `x = x - pas * 2 * (x - 3)`, et renvoie `x`.",
+        "code_depart": "def descente(x0, pas, etapes):\n    x = x0\n    # Répète la mise à jour\n\n    return x\n",
+        "tests": [
+          {
+            "desc": "Une seule étape depuis 0 avec un pas de 0.1 → 0.6",
+            "code": "assert round(descente(0, 0.1, 1), 6) == 0.6"
+          },
+          {
+            "desc": "Après 100 étapes, on est presque à 3",
+            "code": "assert abs(descente(0, 0.1, 100) - 3) < 0.001"
+          },
+          {
+            "desc": "Marche aussi en partant de la droite",
+            "code": "assert abs(descente(10, 0.1, 100) - 3) < 0.001"
+          },
+          {
+            "desc": "0 étape → on ne bouge pas",
+            "code": "assert descente(7, 0.1, 0) == 7"
+          },
+          {
+            "desc": "Un pas trop grand fait diverger",
+            "code": "assert abs(descente(0, 1.1, 30) - 3) > 100"
+          }
+        ],
+        "indices": [
+          "Utilise une boucle for _ in range(etapes):",
+          "Dans la boucle, calcule la pente 2 * (x - 3), puis mets x à jour.",
+          "for _ in range(etapes):\n    x = x - pas * 2 * (x - 3)"
+        ],
+        "solution": "def descente(x0, pas, etapes):\n    x = x0\n    for _ in range(etapes):\n        x = x - pas * 2 * (x - 3)\n    return x\n"
+      },
+      "quiz": [
+        {
+          "q": "Si la pente est positive en x, dans quelle direction faut-il aller pour descendre ?",
+          "choix": [
+            "Vers des x plus grands",
+            "Vers des x plus petits",
+            "On ne bouge pas",
+            "Au hasard"
+          ],
+          "bonne": 1,
+          "explication": "On va à l'opposé de la pente : pente positive → on diminue x."
+        },
+        {
+          "q": "Que se passe-t-il avec un pas d'apprentissage beaucoup trop grand ?",
+          "choix": [
+            "L'apprentissage est plus précis",
+            "On saute par-dessus le minimum et on peut diverger",
+            "Rien ne change",
+            "Le programme s'arrête"
+          ],
+          "bonne": 1,
+          "explication": "Chaque pas dépasse la cible de plus en plus : l'erreur explose au lieu de diminuer."
+        }
+      ]
+    },
+    {
+      "id": "projet_modele",
+      "titre": "Mini-projet : entraîner ton premier modèle",
+      "duree_min": 40,
+      "objectifs": [
+        "Entraîner une régression par descente de gradient",
+        "Suivre l'erreur pendant l'apprentissage",
+        "Retrouver les vrais paramètres à partir des données"
+      ],
+      "explication": "Dernière étape : on assemble tout pour **entraîner** un vrai modèle. On part de données qui suivent la règle `y = 2x + 1`, mais le modèle ne la connaît pas : il démarre avec `a = 0` et `b = 0`, et doit la retrouver seul.\n\nÀ chaque **époque** (un passage sur toutes les données) :\n1. on calcule l'erreur de chaque point : `erreur = (a * x + b) - y` ;\n2. on calcule les pentes de l'EQM par rapport à a et à b ;\n3. on fait un petit pas sur a et sur b.\n\n```python\nn = len(xs)\ngrad_a = 2 / n * sum(((a * x + b) - y) * x for x, y in zip(xs, ys))\ngrad_b = 2 / n * sum(((a * x + b) - y) for x, y in zip(xs, ys))\na = a - pas * grad_a\nb = b - pas * grad_b\n```\n\nC'est exactement la boucle d'entraînement d'un réseau de neurones, avec deux paramètres au lieu de plusieurs milliards. Quand tu utiliseras PyTorch, la bibliothèque calculera les pentes pour toi, mais la logique sera la même.\n",
+      "exercice": {
+        "consigne": "Écris `entrainer(xs, ys, pas, epoques)` qui part de `a = 0, b = 0`, applique `epoques` fois la mise à jour par descente de gradient décrite dans la leçon, et renvoie `(a, b)` arrondis à 2 décimales.",
+        "code_depart": "def entrainer(xs, ys, pas, epoques):\n    a, b = 0.0, 0.0\n    n = len(xs)\n    for _ in range(epoques):\n        # 1. pentes de l'erreur par rapport à a et b\n        # 2. mise à jour de a et b\n        pass\n    return round(a, 2), round(b, 2)\n",
+        "tests": [
+          {
+            "desc": "Retrouve y = 2x + 1",
+            "code": "xs = [0, 1, 2, 3, 4]\nys = [2 * x + 1 for x in xs]\nassert entrainer(xs, ys, 0.05, 2000) == (2.0, 1.0)"
+          },
+          {
+            "desc": "Retrouve y = -x + 5",
+            "code": "xs = [0, 1, 2, 3]\nys = [-x + 5 for x in xs]\nassert entrainer(xs, ys, 0.05, 3000) == (-1.0, 5.0)"
+          },
+          {
+            "desc": "0 époque → le modèle n'a rien appris",
+            "code": "assert entrainer([1, 2], [3, 5], 0.1, 0) == (0.0, 0.0)"
+          },
+          {
+            "desc": "Une époque fait bien un premier pas",
+            "code": "assert entrainer([1, 2], [2, 4], 0.1, 1) == (1.0, 0.6)"
+          }
+        ],
+        "indices": [
+          "Calcule grad_a et grad_b AVANT de modifier a et b : les deux pentes utilisent les anciennes valeurs.",
+          "grad_a = 2 / n * sum(((a * x + b) - y) * x for x, y in zip(xs, ys)) ; grad_b, c'est la même chose sans le « * x ».",
+          "a = a - pas * grad_a\nb = b - pas * grad_b"
+        ],
+        "solution": "def entrainer(xs, ys, pas, epoques):\n    a, b = 0.0, 0.0\n    n = len(xs)\n    for _ in range(epoques):\n        grad_a = 2 / n * sum(((a * x + b) - y) * x for x, y in zip(xs, ys))\n        grad_b = 2 / n * sum(((a * x + b) - y) for x, y in zip(xs, ys))\n        a = a - pas * grad_a\n        b = b - pas * grad_b\n    return round(a, 2), round(b, 2)\n"
+      },
+      "quiz": [
+        {
+          "q": "Qu'est-ce qu'une « époque » d'entraînement ?",
+          "choix": [
+            "Une heure de calcul",
+            "Un passage complet sur toutes les données",
+            "Un neurone",
+            "Une erreur"
+          ],
+          "bonne": 1,
+          "explication": "À chaque époque, le modèle voit toutes les données une fois et ajuste ses paramètres."
+        },
+        {
+          "q": "Pourquoi calculer les deux pentes avant de modifier a et b ?",
+          "choix": [
+            "Pour aller plus vite",
+            "Pour que les deux pentes utilisent le même état du modèle",
+            "Python l'impose",
+            "Ça ne change rien"
+          ],
+          "bonne": 1,
+          "explication": "Si on modifie a d'abord, la pente de b serait calculée avec un a déjà changé : ce n'est plus la vraie descente de gradient."
+        }
+      ]
+    }
+  ]
+}

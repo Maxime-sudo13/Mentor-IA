@@ -27,7 +27,8 @@ def charger_modules():
     for nom in sorted(os.listdir(dossier)):
         if nom.endswith(".json"):
             modules.append(json.load(open(os.path.join(dossier, nom), encoding="utf-8")))
-    return modules
+    # Ordre du parcours : champ "ordre" de chaque module (puis nom de fichier)
+    return sorted(modules, key=lambda m: m.get("ordre", 99))
 
 
 MODULES = charger_modules()
@@ -55,7 +56,8 @@ def vue_parcours():
                 "reussie": e["reussie"], "debloquee": lecon_debloquee(i),
                 "maitrise": maitrise.get(l["id"], 0),
             })
-        out.append({"id": m["id"], "titre": m["titre"], "description": m["description"], "lecons": lecons})
+        out.append({"id": m["id"], "titre": m["titre"], "description": m["description"],
+                    "icone": m.get("icone", "📘"), "lecons": lecons})
     return out
 
 
