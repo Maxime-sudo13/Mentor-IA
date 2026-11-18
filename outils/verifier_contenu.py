@@ -6,10 +6,14 @@ from app import correcteur
 
 racine = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "content")
 ok = True
-for nom in sorted(os.listdir(racine)):
-    if not nom.endswith(".json"):
-        continue
-    module = json.load(open(os.path.join(racine, nom), encoding="utf-8"))
+modules = sorted((json.load(open(os.path.join(racine, n), encoding="utf-8")) for n in os.listdir(racine) if n.endswith(".json")),
+                 key=lambda m: m.get("ordre", 99))
+ids = [l["id"] for m in modules for l in m["lecons"]]
+doublons = {i for i in ids if ids.count(i) > 1}
+if doublons:
+    print("ÉCHEC identifiants de leçon en double :", ", ".join(sorted(doublons)))
+    ok = False
+for module in modules:
     for l in module["lecons"]:
         ex = l["exercice"]
         sol = correcteur.verifier(ex["solution"], ex["tests"])

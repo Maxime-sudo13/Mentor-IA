@@ -22,6 +22,7 @@ CREATE TABLE IF NOT EXISTS tentatives (
 CREATE TABLE IF NOT EXISTS revisions (lecon_id TEXT PRIMARY KEY, boite INTEGER, prochaine TEXT);
 CREATE TABLE IF NOT EXISTS quiz (id INTEGER PRIMARY KEY AUTOINCREMENT, lecon_id TEXT, ts TEXT, correct INTEGER);
 CREATE TABLE IF NOT EXISTS activite (jour TEXT PRIMARY KEY, minutes INTEGER DEFAULT 0);
+CREATE TABLE IF NOT EXISTS xp (id INTEGER PRIMARY KEY AUTOINCREMENT, ts TEXT, jour TEXT, montant INTEGER, raison TEXT, lecon_id TEXT);
 CREATE TABLE IF NOT EXISTS chat (id INTEGER PRIMARY KEY AUTOINCREMENT, lecon_id TEXT, ts TEXT, role TEXT, texte TEXT);
 """
 
@@ -62,6 +63,8 @@ class Progression:
         p = {r["cle"]: r["valeur"] for r in self._q("SELECT * FROM profil")}
         p.setdefault("prenom", "")
         p["objectif_minutes"] = int(p.get("objectif_minutes", 45))
+        p["objectif_xp"] = int(p.get("objectif_xp", 20))
+        p["sons"] = p.get("sons", "1") not in ("0", "False", "false", "")
         return p
 
     def maj_profil(self, **valeurs):
@@ -162,6 +165,7 @@ class Progression:
     def serie(self):
         """Nombre de jours consécutifs d'activité (aujourd'hui ou hier inclus)."""
         jours = {r["jour"] for r in self._q("SELECT jour FROM activite WHERE minutes > 0")}
+        jours |= {r["jour"] for r in self._q("SELECT DISTINCT jour FROM xp WHERE montant > 0")}
         j = aujourdhui()
         if j.isoformat() not in jours:
             j -= dt.timedelta(days=1)
@@ -206,6 +210,28 @@ class Progression:
             (debut,),
         )
         return {"lecons": lecons, "erreurs": erreurs}
+
+    # ---------------------------------------------------------- XP
+    def ajouter_xp(self, montant, raison, lecon_id=None):
+        self._q("INSERT INTO xp (ts, jour, montant, raison, lecon_id) VALUES (?, ?, ?, ?, ?)",
+                (maintenant(), aujourdhui().isoformat(), int(montant), raison, lecon_id))
+
+    def xp_total(self):
+        return self._q("SELECT COALESCE(SUM(montant), 0) AS n FROM xp", un=True)["n"]
+
+    def xp_du_jour(self):
+        return self._q("SELECT COALESCE(SUM(montant), 0) AS n FROM xp WHERE jour = ?", (aujourdhui().isoformat(),), un=True)["n"]
+
+    def xp_par_jour(self, jours=7):
+        debut = aujourdhui() - dt.timedelta(days=jours - 1)
+        rows = {r["jour"]: r["n"] for r in self._q(
+            "SELECT jour, SUM(montant) AS n FROM xp WHERE jour >= ? GROUP BY jour", (debut.isoformat(),))}
+        return [{"jour": (debut + dt.timedelta(days=i)).isoformat(),
+                 "xp": rows.get((debut + dt.timedelta(days=i)).isoformat(), 0)} for i in range(jours)]
+
+    def lecon_terminee_avant(self, lecon_id):
+        """Vrai si la leçon a déjà rapporté l'XP de première réussite."""
+        return self._q("SELECT 1 AS x FROM xp WHERE lecon_id = ? AND raison = 'lecon'", (lecon_id,), un=True) is not None
 
     # ---------------------------------------------------------- chat
     def ajouter_chat(self, lecon_id, role, texte):

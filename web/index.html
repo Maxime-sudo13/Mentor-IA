@@ -3,35 +3,49 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#fffaf3">
 <title>Mentor IA</title>
 <link rel="stylesheet" href="/style.css">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 32 32%22%3E%3Crect width=%2232%22 height=%2232%22 rx=%228%22 fill=%22%231d2433%22/%3E%3Ctext x=%2216%22 y=%2223%22 font-size=%2219%22 text-anchor=%22middle%22 fill=%22%23f5f2ea%22 font-family=%22Georgia%22%3EM%3C/text%3E%3C/svg%3E">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 32 32%22%3E%3Crect width=%2232%22 height=%2232%22 rx=%228%22 fill=%22%23ff7a1a%22/%3E%3Ctext x=%2216%22 y=%2223%22 font-size=%2219%22 text-anchor=%22middle%22 fill=%22white%22 font-family=%22Arial%22 font-weight=%22bold%22%3EM%3C/text%3E%3C/svg%3E">
 </head>
 <body>
-<header class="barre">
-  <a class="logo" href="#/" aria-label="Accueil">
-    <span class="logo-marque">M</span><span>Mentor<span class="logo-ia">IA</span></span>
-  </a>
-  <div class="barre-stats">
-    <div class="stat" title="Jours de suite"><span class="stat-ico">🔥</span><b id="serie">0</b><span class="stat-label">jours</span></div>
-    <div class="stat stat-temps" title="Temps de travail aujourd'hui">
-      <div class="jauge"><div class="jauge-plein" id="jauge"></div></div>
-      <span id="temps">0 / 45 min</span>
-    </div>
-    <div class="ia-etat" id="ia-etat" title="État de l'IA locale"><span class="point"></span><span id="ia-texte">IA</span></div>
-    <button class="btn-icone" id="btn-profil" title="Mon profil" aria-label="Mon profil">⚙</button>
+<header class="barre" id="barre">
+  <a class="logo" href="#/" aria-label="Accueil"><span class="logo-marque">M</span><span class="logo-texte">mentor<b>ia</b></span></a>
+  <nav class="nav-haut" aria-label="Navigation">
+    <a href="#/" data-nav="apprendre">Apprendre</a>
+    <a href="#/revisions" data-nav="reviser">Réviser</a>
+    <a href="#/progres" data-nav="progres">Progrès</a>
+  </nav>
+  <div class="compteurs">
+    <span class="compteur c-serie" title="Jours d'affilée"><span>🔥</span><b id="c-serie">0</b></span>
+    <span class="compteur c-xp" title="XP total"><span>⚡</span><b id="c-xp">0</b></span>
+    <button class="anneau" id="c-objectif" title="Objectif du jour" aria-label="Objectif du jour"></button>
+    <button class="btn-rond" id="btn-profil" title="Réglages" aria-label="Réglages">⚙</button>
   </div>
 </header>
 
 <main id="vue"></main>
 
+<nav class="nav-bas" id="nav-bas" aria-label="Navigation">
+  <a href="#/" data-nav="apprendre"><span>🏠</span>Apprendre</a>
+  <a href="#/revisions" data-nav="reviser"><span>🔁</span>Réviser</a>
+  <a href="#/progres" data-nav="progres"><span>📈</span>Progrès</a>
+</nav>
+
 <div class="toast" id="toast" role="status" hidden></div>
 
 <dialog id="dlg-profil">
   <form method="dialog" id="form-profil">
-    <h2>Mon profil</h2>
+    <h2>Réglages</h2>
     <label>Prénom<input name="prenom" maxlength="40" autocomplete="given-name"></label>
-    <label>Objectif quotidien (minutes)<input name="objectif_minutes" type="number" min="10" max="240" step="5"></label>
+    <fieldset class="choix-objectif">
+      <legend>Objectif quotidien</legend>
+      <label><input type="radio" name="objectif_xp" value="10"><span><b>Détente</b>10 XP / jour</span></label>
+      <label><input type="radio" name="objectif_xp" value="20"><span><b>Normal</b>20 XP / jour</span></label>
+      <label><input type="radio" name="objectif_xp" value="30"><span><b>Sérieux</b>30 XP / jour</span></label>
+      <label><input type="radio" name="objectif_xp" value="50"><span><b>Intense</b>50 XP / jour</span></label>
+    </fieldset>
+    <label class="ligne-case"><input type="checkbox" name="sons"> Effets sonores</label>
     <p class="aide">Ta progression reste sur cet ordinateur (dossier <code>data/</code>). Rien n'est envoyé sur Internet.</p>
     <div class="actions">
       <button value="annuler" class="btn btn-sec">Annuler</button>

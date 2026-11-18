@@ -1,0 +1,505 @@
+{
+  "id": "python_intermediaire",
+  "ordre": 2,
+  "icone": "🧰",
+  "titre": "Python intermédiaire",
+  "description": "Les outils du quotidien d'un développeur IA : tuples, matrices, compréhensions, tri, gestion des erreurs, bibliothèque standard et classes.",
+  "lecons": [
+    {
+      "id": "tuples",
+      "titre": "Tuples et déballage",
+      "duree_min": 15,
+      "objectifs": [
+        "Créer un tuple",
+        "Déballer plusieurs valeurs",
+        "Utiliser enumerate() et zip()"
+      ],
+      "explication": "Un **tuple** ressemble à une liste, mais il ne peut plus être modifié une fois créé. On l'écrit avec des parenthèses :\n\n```python\npoint = (3, 7)\npoint[0]      # 3\n```\n\nLe **déballage** range chaque valeur dans sa propre variable, en une ligne :\n\n```python\nx, y = point          # x vaut 3, y vaut 7\na, b = b, a           # échange deux variables\n```\n\nUne fonction peut renvoyer plusieurs valeurs : elle renvoie en fait un tuple.\n\n```python\ndef bornes(liste):\n    return min(liste), max(liste)\n\nbas, haut = bornes([4, 9, 1])   # bas = 1, haut = 9\n```\n\nDeux outils très utilisés dans les boucles :\n- `enumerate(liste)` donne la position **et** la valeur : `for i, v in enumerate(notes):` ;\n- `zip(a, b)` parcourt deux listes en même temps : `for nom, note in zip(noms, notes):`.\n",
+      "exercice": {
+        "consigne": "Écris `stats(valeurs)` qui renvoie un **tuple** `(minimum, maximum, moyenne)` ; la moyenne est arrondie à 2 décimales.",
+        "code_depart": "def stats(valeurs):\n    # Calcule les trois valeurs puis renvoie-les ensemble\n    pass\n",
+        "tests": [
+          {
+            "desc": "stats([4, 8, 6]) renvoie (4, 8, 6.0)",
+            "code": "assert stats([4, 8, 6]) == (4, 8, 6.0)"
+          },
+          {
+            "desc": "Le résultat est bien un tuple",
+            "code": "assert isinstance(stats([1, 2]), tuple)"
+          },
+          {
+            "desc": "La moyenne est arrondie à 2 décimales",
+            "code": "assert stats([1, 2, 2]) == (1, 2, 1.67)"
+          },
+          {
+            "desc": "On peut déballer le résultat",
+            "code": "bas, haut, moy = stats([10, 20])\nassert (bas, haut, moy) == (10, 20, 15.0)"
+          }
+        ],
+        "indices": [
+          "min(), max() et sum() / len() font tout le travail.",
+          "Pour renvoyer un tuple, sépare les valeurs par des virgules après return.",
+          "return min(valeurs), max(valeurs), round(sum(valeurs) / len(valeurs), 2)"
+        ],
+        "solution": "def stats(valeurs):\n    return min(valeurs), max(valeurs), round(sum(valeurs) / len(valeurs), 2)\n"
+      },
+      "quiz": [
+        {
+          "q": "Après `a, b = 1, 2` puis `a, b = b, a`, que vaut `a` ?",
+          "choix": [
+            "1",
+            "2",
+            "(1, 2)",
+            "Une erreur"
+          ],
+          "bonne": 1,
+          "explication": "La partie droite (b, a) est calculée d'abord : (2, 1), puis déballée dans a et b."
+        },
+        {
+          "q": "Que donne `list(zip([1, 2], [\"a\", \"b\"]))` ?",
+          "choix": [
+            "[1, 2, \"a\", \"b\"]",
+            "[(1, \"a\"), (2, \"b\")]",
+            "[[1, 2], [\"a\", \"b\"]]",
+            "{1: \"a\", 2: \"b\"}"
+          ],
+          "bonne": 1,
+          "explication": "zip associe les éléments de même position en paires (tuples)."
+        }
+      ]
+    },
+    {
+      "id": "matrices",
+      "titre": "Listes de listes (matrices)",
+      "duree_min": 20,
+      "objectifs": [
+        "Représenter un tableau à 2 dimensions",
+        "Accéder à grille[ligne][colonne]",
+        "Écrire des boucles imbriquées"
+      ],
+      "explication": "Une **matrice** est un tableau de nombres en lignes et colonnes. En Python pur, c'est une liste de lignes, chaque ligne étant une liste :\n\n```python\nm = [\n    [1, 2, 3],\n    [4, 5, 6],\n]\nm[1][2]     # ligne 1, colonne 2 → 6\nlen(m)      # 2 lignes\nlen(m[0])   # 3 colonnes\n```\n\nPour tout parcourir, on imbrique deux boucles : une pour les lignes, une pour les colonnes.\n\n```python\ntotal = 0\nfor ligne in m:\n    for valeur in ligne:\n        total += valeur\n```\n\nLes matrices sont partout en IA : une image est une matrice de pixels, un jeu de données est une matrice (une ligne par exemple, une colonne par caractéristique).\n\nLa **transposée** d'une matrice échange lignes et colonnes : la ligne 0 devient la colonne 0. C'est une opération qu'on utilise sans arrêt en calcul de réseaux de neurones.\n",
+      "exercice": {
+        "consigne": "Écris `transposer(m)` qui renvoie la transposée de la matrice `m`. Exemple : `[[1, 2, 3], [4, 5, 6]]` → `[[1, 4], [2, 5], [3, 6]]`.",
+        "code_depart": "def transposer(m):\n    resultat = []\n    # Une nouvelle ligne par colonne de m\n\n    return resultat\n",
+        "tests": [
+          {
+            "desc": "Exemple de l'énoncé",
+            "code": "assert transposer([[1, 2, 3], [4, 5, 6]]) == [[1, 4], [2, 5], [3, 6]]"
+          },
+          {
+            "desc": "Une matrice carrée",
+            "code": "assert transposer([[1, 2], [3, 4]]) == [[1, 3], [2, 4]]"
+          },
+          {
+            "desc": "Une seule ligne devient une colonne",
+            "code": "assert transposer([[7, 8, 9]]) == [[7], [8], [9]]"
+          },
+          {
+            "desc": "La matrice d'origine n'est pas modifiée",
+            "code": "m = [[1, 2], [3, 4]]\ntransposer(m)\nassert m == [[1, 2], [3, 4]]"
+          }
+        ],
+        "indices": [
+          "La transposée a autant de lignes que m a de colonnes : len(m[0]).",
+          "Pour la colonne j, la nouvelle ligne contient m[i][j] pour chaque ligne i.",
+          "for j in range(len(m[0])):\n    resultat.append([ligne[j] for ligne in m])"
+        ],
+        "solution": "def transposer(m):\n    resultat = []\n    for j in range(len(m[0])):\n        resultat.append([ligne[j] for ligne in m])\n    return resultat\n"
+      },
+      "quiz": [
+        {
+          "q": "Avec `m = [[1, 2], [3, 4], [5, 6]]`, que vaut `m[2][0]` ?",
+          "choix": [
+            "2",
+            "3",
+            "5",
+            "6"
+          ],
+          "bonne": 2,
+          "explication": "m[2] est la 3e ligne [5, 6], et son élément 0 est 5."
+        },
+        {
+          "q": "Une matrice de 3 lignes et 4 colonnes, une fois transposée, a…",
+          "choix": [
+            "3 lignes et 4 colonnes",
+            "4 lignes et 3 colonnes",
+            "12 lignes",
+            "7 colonnes"
+          ],
+          "bonne": 1,
+          "explication": "La transposée échange lignes et colonnes."
+        }
+      ]
+    },
+    {
+      "id": "comprehensions",
+      "titre": "Compréhensions de listes et de dictionnaires",
+      "duree_min": 20,
+      "objectifs": [
+        "Écrire une compréhension avec condition",
+        "Construire un dictionnaire en une ligne",
+        "Savoir quand ne pas en abuser"
+      ],
+      "explication": "Une **compréhension** construit une collection en une seule ligne. La forme générale :\n\n```python\n[expression for element in sequence if condition]\n```\n\n```python\ncarres_pairs = [n ** 2 for n in range(10) if n % 2 == 0]\n# [0, 4, 16, 36, 64]\n```\n\nMême principe pour un **dictionnaire**, avec `cle: valeur` :\n\n```python\nprix = {\"pain\": 1.2, \"lait\": 0.9, \"café\": 4.5}\nchers = {p: v for p, v in prix.items() if v > 1}\n# {\"pain\": 1.2, \"café\": 4.5}\n```\n\nEt pour un **ensemble** (`set`), qui ne garde que des valeurs uniques : `{len(m) for m in mots}`.\n\nBon réflexe : une compréhension doit rester lisible en une ligne. Si tu dois réfléchir longtemps pour la relire, écris une boucle classique.\n",
+      "exercice": {
+        "consigne": "Écris `longueurs(texte)` qui renvoie un dictionnaire `{mot: longueur}` pour chaque mot de **plus de 3 lettres** du texte, en minuscules. Utilise une compréhension de dictionnaire.",
+        "code_depart": "def longueurs(texte):\n    return {}\n",
+        "tests": [
+          {
+            "desc": "Garde les mots de plus de 3 lettres",
+            "code": "assert longueurs('Le petit chat dort') == {'petit': 5, 'chat': 4, 'dort': 4}"
+          },
+          {
+            "desc": "Met les mots en minuscules",
+            "code": "assert longueurs('PYTHON est Super') == {'python': 6, 'super': 5}"
+          },
+          {
+            "desc": "Texte vide → dictionnaire vide",
+            "code": "assert longueurs('') == {}"
+          }
+        ],
+        "indices": [
+          "Découpe avec texte.lower().split(), puis garde les mots dont len(mot) > 3.",
+          "Forme : {mot: len(mot) for mot in ... if ...}",
+          "return {mot: len(mot) for mot in texte.lower().split() if len(mot) > 3}"
+        ],
+        "solution": "def longueurs(texte):\n    return {mot: len(mot) for mot in texte.lower().split() if len(mot) > 3}\n"
+      },
+      "quiz": [
+        {
+          "q": "Que vaut `[x for x in range(6) if x % 3 == 0]` ?",
+          "choix": [
+            "[0, 3]",
+            "[3]",
+            "[0, 3, 6]",
+            "[1, 2, 4, 5]"
+          ],
+          "bonne": 0,
+          "explication": "range(6) va de 0 à 5 ; seuls 0 et 3 sont divisibles par 3."
+        },
+        {
+          "q": "Que vaut `len({c for c in \"banane\"})` ?",
+          "choix": [
+            "6",
+            "3",
+            "2",
+            "4"
+          ],
+          "bonne": 1,
+          "explication": "Un ensemble ne garde que les valeurs uniques : b, a, n."
+        }
+      ]
+    },
+    {
+      "id": "tri",
+      "titre": "Trier avec sorted() et lambda",
+      "duree_min": 20,
+      "objectifs": [
+        "Trier une liste avec sorted()",
+        "Choisir le critère de tri avec key",
+        "Écrire une petite fonction lambda"
+      ],
+      "explication": "`sorted(liste)` renvoie une **nouvelle** liste triée, sans toucher à l'originale. `reverse=True` trie du plus grand au plus petit :\n\n```python\nsorted([5, 2, 9])                 # [2, 5, 9]\nsorted([5, 2, 9], reverse=True)   # [9, 5, 2]\n```\n\nLe paramètre `key` indique **selon quoi** trier. On lui donne une fonction appliquée à chaque élément. Souvent, on l'écrit avec `lambda`, une fonction d'une ligne sans nom :\n\n```python\nmots = [\"kiwi\", \"ananas\", \"fraise\"]\nsorted(mots, key=lambda m: len(m))   # [\"kiwi\", \"fraise\", \"ananas\"]\n```\n\nPour trier sur **plusieurs critères**, la clé renvoie un tuple : Python compare d'abord le premier élément, puis le second en cas d'égalité. Le signe moins inverse l'ordre d'un nombre :\n\n```python\njoueurs = [(\"Lina\", 12), (\"Abel\", 15), (\"Zoé\", 15)]\nsorted(joueurs, key=lambda j: (-j[1], j[0]))\n# [(\"Abel\", 15), (\"Zoé\", 15), (\"Lina\", 12)]\n```\n\n`max()` et `min()` acceptent aussi `key` : `max(joueurs, key=lambda j: j[1])`.\n",
+      "exercice": {
+        "consigne": "Écris `classement(eleves)` : `eleves` est une liste de dictionnaires `{\"nom\": ..., \"note\": ...}`. Renvoie la liste des **noms**, de la meilleure note à la moins bonne ; en cas d'égalité, par ordre alphabétique.",
+        "code_depart": "def classement(eleves):\n    pass\n",
+        "tests": [
+          {
+            "desc": "Trie par note décroissante",
+            "code": "assert classement([{'nom': 'Ana', 'note': 12}, {'nom': 'Bob', 'note': 17}]) == ['Bob', 'Ana']"
+          },
+          {
+            "desc": "Égalité : ordre alphabétique",
+            "code": "assert classement([{'nom': 'Zoé', 'note': 15}, {'nom': 'Abel', 'note': 15}, {'nom': 'Lina', 'note': 9}]) == ['Abel', 'Zoé', 'Lina']"
+          },
+          {
+            "desc": "Liste vide → liste vide",
+            "code": "assert classement([]) == []"
+          }
+        ],
+        "indices": [
+          "Trie d'abord la liste de dictionnaires avec sorted(..., key=...), puis garde seulement les noms.",
+          "La clé peut renvoyer un tuple : (-e[\"note\"], e[\"nom\"]).",
+          "tries = sorted(eleves, key=lambda e: (-e[\"note\"], e[\"nom\"]))\nreturn [e[\"nom\"] for e in tries]"
+        ],
+        "solution": "def classement(eleves):\n    tries = sorted(eleves, key=lambda e: (-e[\"note\"], e[\"nom\"]))\n    return [e[\"nom\"] for e in tries]\n"
+      },
+      "quiz": [
+        {
+          "q": "Que vaut `sorted([\"bb\", \"a\", \"ccc\"], key=len, reverse=True)` ?",
+          "choix": [
+            "[\"a\", \"bb\", \"ccc\"]",
+            "[\"ccc\", \"bb\", \"a\"]",
+            "[\"bb\", \"a\", \"ccc\"]",
+            "[3, 2, 1]"
+          ],
+          "bonne": 1,
+          "explication": "On trie par longueur, du plus long au plus court."
+        },
+        {
+          "q": "Que fait `lambda x: x * 2` ?",
+          "choix": [
+            "Multiplie une variable x existante",
+            "Définit une fonction qui double son argument",
+            "Crée une liste",
+            "Rien, c'est une erreur"
+          ],
+          "bonne": 1,
+          "explication": "lambda crée une petite fonction anonyme : ici, elle renvoie son argument multiplié par 2."
+        }
+      ]
+    },
+    {
+      "id": "exceptions",
+      "titre": "Gérer les erreurs : try / except",
+      "duree_min": 20,
+      "objectifs": [
+        "Attraper une erreur avec try / except",
+        "Cibler le bon type d'erreur",
+        "Lever une erreur avec raise"
+      ],
+      "explication": "Les données réelles sont souvent sales : cases vides, texte au lieu d'un nombre… Plutôt que de laisser le programme planter, on **attrape** l'erreur :\n\n```python\ntry:\n    note = float(\"abs\")\nexcept ValueError:\n    note = None      # on décide quoi faire à la place\n```\n\nPython exécute le bloc `try`. Si une erreur du type indiqué survient, il saute dans le bloc `except` au lieu de s'arrêter.\n\nVise toujours un type d'erreur précis (`ValueError`, `KeyError`, `ZeroDivisionError`…). Un `except:` tout seul attrape tout, y compris tes propres fautes de frappe, et les cache.\n\nÀ l'inverse, ta fonction peut **signaler** un problème avec `raise` :\n\n```python\ndef racine(x):\n    if x < 0:\n        raise ValueError(\"x doit être positif\")\n    return x ** 0.5\n```\n\nNettoyer les données représente une grande partie du travail réel en IA : c'est ici que ça commence.\n",
+      "exercice": {
+        "consigne": "Écris `convertir_notes(textes)` qui reçoit une liste de textes et renvoie la liste des notes converties en `float`, en **ignorant** ceux qui ne sont pas des nombres (\"abs\", \"\", …). Utilise `try / except ValueError`.",
+        "code_depart": "def convertir_notes(textes):\n    notes = []\n    for t in textes:\n        # Essaie de convertir, ignore les valeurs invalides\n        pass\n    return notes\n",
+        "tests": [
+          {
+            "desc": "Ignore les valeurs invalides",
+            "code": "assert convertir_notes(['12', 'abs', '15.5', '']) == [12.0, 15.5]"
+          },
+          {
+            "desc": "Tout est valide",
+            "code": "assert convertir_notes(['1', '2']) == [1.0, 2.0]"
+          },
+          {
+            "desc": "Rien de valide → liste vide",
+            "code": "assert convertir_notes(['x', 'y']) == []"
+          },
+          {
+            "desc": "Accepte les nombres négatifs",
+            "code": "assert convertir_notes(['-2', 'n/a', '0']) == [-2.0, 0.0]"
+          }
+        ],
+        "indices": [
+          "Dans la boucle : un bloc try qui contient la conversion et l'ajout à la liste.",
+          "float(t) lève une ValueError si t n'est pas un nombre : except ValueError: puis pass (on ne fait rien).",
+          "try:\n    notes.append(float(t))\nexcept ValueError:\n    pass"
+        ],
+        "solution": "def convertir_notes(textes):\n    notes = []\n    for t in textes:\n        try:\n            notes.append(float(t))\n        except ValueError:\n            pass\n    return notes\n"
+      },
+      "quiz": [
+        {
+          "q": "Quelle erreur lève `{\"a\": 1}[\"b\"]` ?",
+          "choix": [
+            "ValueError",
+            "IndexError",
+            "KeyError",
+            "TypeError"
+          ],
+          "bonne": 2,
+          "explication": "Lire une clé absente d'un dictionnaire lève une KeyError."
+        },
+        {
+          "q": "Pourquoi éviter un `except:` sans type d'erreur ?",
+          "choix": [
+            "C'est plus lent",
+            "Il cache aussi les vraies erreurs (fautes de frappe…)",
+            "Python l'interdit",
+            "Il ne marche qu'une fois"
+          ],
+          "bonne": 1,
+          "explication": "Il attrape tout, y compris les bugs qu'on voudrait voir pour les corriger."
+        }
+      ]
+    },
+    {
+      "id": "bibliotheque",
+      "titre": "La bibliothèque standard",
+      "duree_min": 20,
+      "objectifs": [
+        "Importer un module",
+        "Utiliser math et statistics",
+        "Compter avec collections.Counter"
+      ],
+      "explication": "Python est livré avec des centaines de modules prêts à l'emploi : c'est la **bibliothèque standard**. On les charge avec `import` :\n\n```python\nimport math\nmath.sqrt(16)      # 4.0\nmath.pi            # 3.14159…\n```\n\n`statistics` calcule les indicateurs de base d'une série de nombres :\n\n```python\nimport statistics\nstatistics.mean([2, 4, 9])     # 5\nstatistics.median([2, 4, 9])   # 4\n```\n\n`collections.Counter` compte les occurrences, et `most_common(n)` donne les n plus fréquents :\n\n```python\nfrom collections import Counter\nc = Counter([\"a\", \"b\", \"a\", \"c\", \"a\"])\nc.most_common(1)    # [(\"a\", 3)]\n```\n\n`from module import nom` importe un seul élément, qu'on utilise ensuite sans préfixe. Avant d'écrire un outil, demande-toi s'il n'existe pas déjà.\n",
+      "exercice": {
+        "consigne": "Écris `mots_frequents(texte, n)` qui renvoie la liste des `n` mots les plus fréquents du texte (en minuscules), du plus fréquent au moins fréquent. Utilise `Counter`.",
+        "code_depart": "from collections import Counter\n\ndef mots_frequents(texte, n):\n    pass\n",
+        "tests": [
+          {
+            "desc": "Trouve le mot le plus fréquent",
+            "code": "assert mots_frequents('le chat et le chien et le loup', 1) == ['le']"
+          },
+          {
+            "desc": "Renvoie les n premiers dans l'ordre",
+            "code": "assert mots_frequents('b a b c b a', 2) == ['b', 'a']"
+          },
+          {
+            "desc": "Ignore les majuscules",
+            "code": "assert mots_frequents('IA ia Ia python', 1) == ['ia']"
+          }
+        ],
+        "indices": [
+          "Counter(texte.lower().split()) compte chaque mot.",
+          "most_common(n) renvoie des paires (mot, nombre) : garde seulement le mot.",
+          "return [mot for mot, nb in Counter(texte.lower().split()).most_common(n)]"
+        ],
+        "solution": "from collections import Counter\n\ndef mots_frequents(texte, n):\n    return [mot for mot, nb in Counter(texte.lower().split()).most_common(n)]\n"
+      },
+      "quiz": [
+        {
+          "q": "Que vaut `statistics.median([1, 3, 100])` ?",
+          "choix": [
+            "3",
+            "34.67",
+            "100",
+            "1"
+          ],
+          "bonne": 0,
+          "explication": "La médiane est la valeur du milieu une fois triée : 3. Elle résiste aux valeurs extrêmes, contrairement à la moyenne."
+        },
+        {
+          "q": "Après `from math import sqrt`, comment calculer la racine de 9 ?",
+          "choix": [
+            "math.sqrt(9)",
+            "sqrt(9)",
+            "import sqrt(9)",
+            "math(9)"
+          ],
+          "bonne": 1,
+          "explication": "from … import … rend le nom directement disponible, sans préfixe."
+        }
+      ]
+    },
+    {
+      "id": "classes",
+      "titre": "Classes et objets",
+      "duree_min": 25,
+      "objectifs": [
+        "Définir une classe",
+        "Comprendre __init__ et self",
+        "Écrire des méthodes"
+      ],
+      "explication": "Une **classe** est un plan de fabrication : elle décrit des données (les **attributs**) et des actions (les **méthodes**). Chaque objet fabriqué à partir d'elle a ses propres données.\n\n```python\nclass Chien:\n    def __init__(self, nom):\n        self.nom = nom\n        self.energie = 10\n\n    def jouer(self):\n        self.energie -= 3\n        return f\"{self.nom} joue !\"\n```\n\n`__init__` est appelée automatiquement à la création de l'objet. `self` désigne l'objet lui-même : `self.nom` est le nom de **ce** chien-là.\n\n```python\nrex = Chien(\"Rex\")\nrex.jouer()       # \"Rex joue !\"\nrex.energie       # 7\n```\n\nLes bibliothèques d'IA comme PyTorch sont construites ainsi : un modèle est une classe, avec ses poids en attributs et une méthode pour calculer une prédiction.\n",
+      "exercice": {
+        "consigne": "Écris une classe `Compte` : `Compte(\"Inès\")` crée un compte avec `titulaire` et un `solde` de 0. La méthode `deposer(montant)` ajoute au solde ; `retirer(montant)` le diminue, mais lève une `ValueError` si le solde est insuffisant. Les deux méthodes renvoient le nouveau solde.",
+        "code_depart": "class Compte:\n    def __init__(self, titulaire):\n        pass\n\n    def deposer(self, montant):\n        pass\n\n    def retirer(self, montant):\n        pass\n",
+        "tests": [
+          {
+            "desc": "Un nouveau compte a un solde de 0",
+            "code": "c = Compte('Inès')\nassert c.titulaire == 'Inès' and c.solde == 0"
+          },
+          {
+            "desc": "deposer ajoute et renvoie le solde",
+            "code": "c = Compte('A')\nassert c.deposer(50) == 50 and c.deposer(20) == 70"
+          },
+          {
+            "desc": "retirer diminue le solde",
+            "code": "c = Compte('A')\nc.deposer(100)\nassert c.retirer(30) == 70 and c.solde == 70"
+          },
+          {
+            "desc": "Retrait impossible → ValueError, solde inchangé",
+            "code": "c = Compte('A')\nc.deposer(10)\ntry:\n    c.retirer(50)\n    assert False, 'pas d erreur'\nexcept ValueError:\n    pass\nassert c.solde == 10"
+          },
+          {
+            "desc": "Deux comptes sont indépendants",
+            "code": "a, b = Compte('A'), Compte('B')\na.deposer(5)\nassert b.solde == 0"
+          }
+        ],
+        "indices": [
+          "Dans __init__ : self.titulaire = titulaire et self.solde = 0.",
+          "Dans retirer, vérifie d'abord : if montant > self.solde: raise ValueError(\"Solde insuffisant\")",
+          "def deposer(self, montant):\n    self.solde += montant\n    return self.solde"
+        ],
+        "solution": "class Compte:\n    def __init__(self, titulaire):\n        self.titulaire = titulaire\n        self.solde = 0\n\n    def deposer(self, montant):\n        self.solde += montant\n        return self.solde\n\n    def retirer(self, montant):\n        if montant > self.solde:\n            raise ValueError(\"Solde insuffisant\")\n        self.solde -= montant\n        return self.solde\n"
+      },
+      "quiz": [
+        {
+          "q": "À quoi sert `self` dans une méthode ?",
+          "choix": [
+            "À importer la classe",
+            "À désigner l'objet sur lequel on agit",
+            "À créer une variable globale",
+            "À rien, c'est décoratif"
+          ],
+          "bonne": 1,
+          "explication": "self est l'objet lui-même : self.solde est le solde de ce compte-là."
+        },
+        {
+          "q": "Quand `__init__` est-elle appelée ?",
+          "choix": [
+            "À chaque appel de méthode",
+            "À la création de l'objet",
+            "À la fin du programme",
+            "Jamais automatiquement"
+          ],
+          "bonne": 1,
+          "explication": "Écrire Compte(\"Inès\") crée l'objet et appelle __init__ avec \"Inès\"."
+        }
+      ]
+    },
+    {
+      "id": "projet_inventaire",
+      "titre": "Mini-projet : un inventaire",
+      "duree_min": 35,
+      "objectifs": [
+        "Combiner classe, dictionnaire et tri",
+        "Découper un problème en méthodes",
+        "Gérer les cas limites"
+      ],
+      "explication": "On assemble tout : une classe qui garde ses données dans un dictionnaire, des méthodes courtes, du tri et une erreur levée quand c'est nécessaire.\n\nLe stock est rangé dans un dictionnaire `{produit: {\"quantite\": ..., \"prix\": ...}}` :\n\n```python\nself.stock = {}\nself.stock[\"stylo\"] = {\"quantite\": 10, \"prix\": 1.5}\n```\n\nMéthode conseillée :\n1. écris `__init__` et `ajouter`, puis teste ;\n2. ajoute `valeur_totale` (somme de quantité × prix) ;\n3. termine par `plus_precieux`, qui trie les produits selon leur valeur en stock.\n\nSi un produit existe déjà, `ajouter` augmente sa quantité et met à jour son prix.\n",
+      "exercice": {
+        "consigne": "Écris une classe `Inventaire` avec : `ajouter(produit, quantite, prix)` ; `valeur_totale()` qui renvoie la somme des quantité × prix, arrondie à 2 décimales ; `plus_precieux(n)` qui renvoie les `n` produits dont la valeur en stock est la plus élevée, du plus au moins précieux.",
+        "code_depart": "class Inventaire:\n    def __init__(self):\n        self.stock = {}\n\n    def ajouter(self, produit, quantite, prix):\n        pass\n\n    def valeur_totale(self):\n        pass\n\n    def plus_precieux(self, n):\n        pass\n",
+        "tests": [
+          {
+            "desc": "Valeur totale d'un inventaire simple",
+            "code": "i = Inventaire()\ni.ajouter('stylo', 10, 1.5)\ni.ajouter('cahier', 4, 3.2)\nassert i.valeur_totale() == 27.8"
+          },
+          {
+            "desc": "Ajouter un produit existant augmente sa quantité",
+            "code": "i = Inventaire()\ni.ajouter('stylo', 10, 1.5)\ni.ajouter('stylo', 5, 1.5)\nassert i.stock['stylo']['quantite'] == 15"
+          },
+          {
+            "desc": "plus_precieux trie par valeur en stock",
+            "code": "i = Inventaire()\ni.ajouter('a', 1, 100)\ni.ajouter('b', 50, 1)\ni.ajouter('c', 10, 20)\nassert i.plus_precieux(2) == ['c', 'a']"
+          },
+          {
+            "desc": "Inventaire vide",
+            "code": "i = Inventaire()\nassert i.valeur_totale() == 0 and i.plus_precieux(3) == []"
+          }
+        ],
+        "indices": [
+          "Dans ajouter : si produit est déjà dans self.stock, ajoute la quantité ; sinon crée l'entrée. Mets le prix à jour dans les deux cas.",
+          "valeur_totale : round(sum(p[\"quantite\"] * p[\"prix\"] for p in self.stock.values()), 2)",
+          "plus_precieux : sorted(self.stock, key=lambda nom: self.stock[nom][\"quantite\"] * self.stock[nom][\"prix\"], reverse=True)[:n]"
+        ],
+        "solution": "class Inventaire:\n    def __init__(self):\n        self.stock = {}\n\n    def ajouter(self, produit, quantite, prix):\n        if produit in self.stock:\n            self.stock[produit][\"quantite\"] += quantite\n        else:\n            self.stock[produit] = {\"quantite\": quantite, \"prix\": prix}\n        self.stock[produit][\"prix\"] = prix\n\n    def valeur_totale(self):\n        return round(sum(p[\"quantite\"] * p[\"prix\"] for p in self.stock.values()), 2)\n\n    def plus_precieux(self, n):\n        valeur = lambda nom: self.stock[nom][\"quantite\"] * self.stock[nom][\"prix\"]\n        return sorted(self.stock, key=valeur, reverse=True)[:n]\n"
+      },
+      "quiz": [
+        {
+          "q": "Que renvoie `sorted(d)` si `d` est un dictionnaire ?",
+          "choix": [
+            "Les valeurs triées",
+            "Les clés triées",
+            "Les paires triées",
+            "Une erreur"
+          ],
+          "bonne": 1,
+          "explication": "Parcourir un dictionnaire donne ses clés ; sorted renvoie donc la liste des clés triées."
+        },
+        {
+          "q": "Pourquoi tester après chaque méthode écrite ?",
+          "choix": [
+            "C'est obligatoire en Python",
+            "Pour trouver une erreur tant qu'elle est petite et facile à localiser",
+            "Pour aller plus vite à l'exécution",
+            "Pour éviter d'écrire des classes"
+          ],
+          "bonne": 1,
+          "explication": "Avancer par petits pas vérifiés évite de chercher un bug dans 50 lignes d'un coup."
+        }
+      ]
+    }
+  ]
+}

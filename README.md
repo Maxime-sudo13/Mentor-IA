@@ -12,7 +12,28 @@ Plateforme d'apprentissage du Python avec un tuteur IA **100 % local et gratuit*
 Aucune bibliothèque Python à installer : tout est écrit avec la bibliothèque standard.
 **Matériel conseillé pour l'IA :** 8 Go de RAM minimum, 16 Go pour être à l'aise. Sans Ollama, l'application fonctionne quand même : le tuteur répond alors avec les explications et indices écrits à l'avance.
 
+## Le parcours
+
+| Module | Leçons | Contenu |
+|---|---|---|
+| 🐍 Bases de Python | 10 | variables, types, conditions, boucles, listes, fonctions, dictionnaires, texte, mini-projet |
+| 🧰 Python intermédiaire | 8 | tuples, matrices, compréhensions, tri et lambda, exceptions, bibliothèque standard, classes, mini-projet |
+| 🧠 L'IA à la main | 9 | vecteurs, distance, normalisation, k plus proches voisins, mesure d'erreur, régression linéaire, neurone, descente de gradient, entraîner un modèle |
+
+Tous les exercices tournent avec Python seul (aucune bibliothèque à installer) : on comprend ce que font NumPy et PyTorch avant de s'en servir.
+
 ## Ce que fait la plateforme
+
+L'interface s'inspire des applis d'apprentissage ludiques (type Duolingo) : **une seule chose à l'écran à la fois**.
+
+- **Chemin de leçons** : chaque leçon est un rond sur un chemin ; la suivante se débloque quand la précédente est réussie.
+- **Leçon en petites étapes** : intro → notions courtes (une par écran) → quiz avec retour immédiat (vert / rouge) → défi de code. Une question ratée revient plus loin dans la leçon.
+- **XP, objectif du jour, série** : 25 à 29 XP par leçon réussie, 5 XP par notion révisée ; objectif réglable (10 / 20 / 30 / 50 XP par jour) ; la série compte les jours consécutifs de travail.
+- **Révisions** : quiz + « remets le code dans l'ordre » (les lignes de la solution d'une leçon déjà réussie, mélangées).
+- **Écrans de fin** : XP gagnés, précision, temps, puis célébration de la série et de l'objectif du jour.
+- **Mobile** : barre de navigation en bas (Apprendre / Réviser / Progrès). Sons générés par le navigateur, désactivables.
+
+Sous le capot :
 
 | Fonction | Comment c'est fait |
 |---|---|
