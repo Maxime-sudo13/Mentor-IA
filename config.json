@@ -1,0 +1,7 @@
+{
+  "modele": "qwen3.5:4b",
+  "ollama_url": "http://127.0.0.1:11434",
+  "port": 8765,
+  "timeout_execution": 5,
+  "timeout_ia": 120
+}

@@ -1,0 +1,617 @@
+{
+  "id": "python_bases",
+  "titre": "Bases de Python",
+  "description": "Les fondations indispensables avant le machine learning : variables, conditions, boucles, structures de données et fonctions.",
+  "lecons": [
+    {
+      "id": "variables",
+      "titre": "Variables et affichage",
+      "duree_min": 15,
+      "objectifs": [
+        "Créer une variable",
+        "Afficher une valeur avec print()",
+        "Utiliser les f-strings"
+      ],
+      "explication": "Une **variable** est une étiquette posée sur une valeur. On la crée avec le signe `=` :\n\n```python\nprenom = \"Sami\"\nage = 24\n```\n\nPour afficher quelque chose à l'écran, on utilise `print()` :\n\n```python\nprint(prenom)        # Sami\nprint(age + 1)       # 25\n```\n\nPour mélanger du texte et des variables, la façon la plus lisible est la **f-string** : on met un `f` devant les guillemets et les variables entre accolades.\n\n```python\nprint(f\"{prenom} a {age} ans\")   # Sami a 24 ans\n```\n\nÀ retenir :\n- le nom de variable est à gauche du `=`, la valeur à droite ;\n- le texte se met entre guillemets, pas les nombres ;\n- Python respecte les majuscules : `Age` et `age` sont deux variables différentes.",
+      "exercice": {
+        "consigne": "Crée une variable `ville` qui vaut `\"Lyon\"` et une variable `habitants` qui vaut `522000`. Puis affiche exactement : `Lyon compte 522000 habitants`",
+        "code_depart": "# Crée tes deux variables ici\n\n\n# Affiche la phrase avec une f-string\n",
+        "tests": [
+          {
+            "desc": "La variable ville existe et vaut \"Lyon\"",
+            "code": "assert ville == 'Lyon'"
+          },
+          {
+            "desc": "La variable habitants vaut 522000 (un nombre, pas un texte)",
+            "code": "assert habitants == 522000 and isinstance(habitants, int)"
+          },
+          {
+            "desc": "La phrase affichée est exacte",
+            "code": "assert sortie.strip() == 'Lyon compte 522000 habitants'"
+          }
+        ],
+        "indices": [
+          "Commence par les deux lignes de création : nom de la variable, signe égal, valeur.",
+          "Le texte « Lyon » doit être entre guillemets ; le nombre 522000 non.",
+          "Pour l'affichage : print(f\"{ville} compte ... habitants\") — complète avec la bonne variable."
+        ],
+        "solution": "ville = \"Lyon\"\nhabitants = 522000\nprint(f\"{ville} compte {habitants} habitants\")\n"
+      },
+      "quiz": [
+        {
+          "q": "Que contient `x` après `x = 3` puis `x = x + 2` ?",
+          "choix": [
+            "3",
+            "5",
+            "x + 2",
+            "Une erreur"
+          ],
+          "bonne": 1,
+          "explication": "Python calcule d'abord la droite (3 + 2 = 5), puis met le résultat dans x."
+        },
+        {
+          "q": "Que affiche `print(f\"{a}-{b}\")` si a = 1 et b = 2 ?",
+          "choix": [
+            "{a}-{b}",
+            "1-2",
+            "3",
+            "a-b"
+          ],
+          "bonne": 1,
+          "explication": "Dans une f-string, chaque {variable} est remplacée par sa valeur."
+        }
+      ]
+    },
+    {
+      "id": "types",
+      "titre": "Types et conversions",
+      "duree_min": 15,
+      "objectifs": [
+        "Distinguer int, float, str, bool",
+        "Convertir avec int(), float(), str()",
+        "Connaître type()"
+      ],
+      "explication": "Chaque valeur a un **type** :\n\n| Type | Exemple | Sens |\n|---|---|---|\n| `int` | `42` | nombre entier |\n| `float` | `3.14` | nombre à virgule (avec un point !) |\n| `str` | `\"bonjour\"` | texte |\n| `bool` | `True` / `False` | vrai ou faux |\n\n`type(valeur)` te dit de quel type il s'agit.\n\nOn ne peut pas additionner un texte et un nombre : `\"3\" + 2` provoque une **TypeError**. Il faut convertir :\n\n```python\nint(\"3\") + 2      # 5\nstr(3) + \"2\"      # \"32\"\nfloat(\"2.5\") * 2  # 5.0\n```\n\nLa division `/` donne toujours un `float` (`7 / 2` vaut `3.5`). La division entière `//` garde la partie entière (`7 // 2` vaut `3`) et `%` donne le reste (`7 % 2` vaut `1`).",
+      "exercice": {
+        "consigne": "On te donne `prix_texte = \"19.90\"` et `quantite_texte = \"3\"` (ce sont des textes). Calcule `total`, le prix total sous forme de nombre à virgule, arrondi à 2 décimales avec `round(..., 2)`.",
+        "code_depart": "prix_texte = \"19.90\"\nquantite_texte = \"3\"\n\n# Convertis puis calcule total\ntotal = \n",
+        "tests": [
+          {
+            "desc": "total est un nombre à virgule (float)",
+            "code": "assert isinstance(total, float)"
+          },
+          {
+            "desc": "total vaut 59.7",
+            "code": "assert total == 59.7"
+          }
+        ],
+        "indices": [
+          "Les deux valeurs sont du texte : il faut les convertir avant de multiplier.",
+          "Le prix a une virgule → float(). La quantité est entière → int().",
+          "total = round(float(prix_texte) * int(quantite_texte), 2)"
+        ],
+        "solution": "prix_texte = \"19.90\"\nquantite_texte = \"3\"\n\ntotal = round(float(prix_texte) * int(quantite_texte), 2)\n"
+      },
+      "quiz": [
+        {
+          "q": "Que vaut `17 // 5` ?",
+          "choix": [
+            "3.4",
+            "3",
+            "2",
+            "4"
+          ],
+          "bonne": 1,
+          "explication": "// est la division entière : 17 / 5 = 3.4, on garde 3."
+        },
+        {
+          "q": "Quel est le type de `\"12\"` ?",
+          "choix": [
+            "int",
+            "float",
+            "str",
+            "bool"
+          ],
+          "bonne": 2,
+          "explication": "Les guillemets en font un texte (str), même s'il contient des chiffres."
+        }
+      ]
+    },
+    {
+      "id": "conditions",
+      "titre": "Conditions : if, elif, else",
+      "duree_min": 20,
+      "objectifs": [
+        "Écrire un test avec if",
+        "Enchaîner elif / else",
+        "Utiliser and, or, not"
+      ],
+      "explication": "Une **condition** permet d'exécuter du code seulement si un test est vrai :\n\n```python\ntemperature = 31\nif temperature > 30:\n    print(\"Canicule\")\nelif temperature > 20:\n    print(\"Il fait bon\")\nelse:\n    print(\"Il fait frais\")\n```\n\nPoints clés :\n- la ligne `if` se termine par **deux-points** `:` ;\n- le code à exécuter est **indenté** (4 espaces) — c'est l'indentation qui délimite le bloc ;\n- Python teste les conditions dans l'ordre et s'arrête à la première vraie.\n\nOpérateurs de comparaison : `==` (égal — attention, deux signes !), `!=` (différent), `<`, `>`, `<=`, `>=`.\n\nOn combine avec `and` (les deux), `or` (au moins un), `not` (l'inverse) :\n\n```python\nif age >= 18 and inscrit:\n    print(\"Accès autorisé\")\n```",
+      "exercice": {
+        "consigne": "Écris une fonction `mention(note)` qui renvoie (avec `return`) : `\"Très bien\"` si la note est ≥ 16, `\"Bien\"` si ≥ 14, `\"Assez bien\"` si ≥ 12, `\"Passable\"` si ≥ 10, sinon `\"Ajourné\"`.",
+        "code_depart": "def mention(note):\n    # Complète avec if / elif / else\n    pass\n",
+        "tests": [
+          {
+            "desc": "mention(18) renvoie \"Très bien\"",
+            "code": "assert mention(18) == 'Très bien'"
+          },
+          {
+            "desc": "mention(16) renvoie \"Très bien\" (limite incluse)",
+            "code": "assert mention(16) == 'Très bien'"
+          },
+          {
+            "desc": "mention(14.5) renvoie \"Bien\"",
+            "code": "assert mention(14.5) == 'Bien'"
+          },
+          {
+            "desc": "mention(12) renvoie \"Assez bien\"",
+            "code": "assert mention(12) == 'Assez bien'"
+          },
+          {
+            "desc": "mention(10) renvoie \"Passable\"",
+            "code": "assert mention(10) == 'Passable'"
+          },
+          {
+            "desc": "mention(9.9) renvoie \"Ajourné\"",
+            "code": "assert mention(9.9) == 'Ajourné'"
+          }
+        ],
+        "indices": [
+          "Teste les seuils du plus haut (16) au plus bas (10) : Python s'arrête au premier test vrai.",
+          "« ≥ » s'écrit >= en Python. Chaque branche doit faire un return.",
+          "Structure : if note >= 16: return \"Très bien\" / elif note >= 14: ... / else: return \"Ajourné\""
+        ],
+        "solution": "def mention(note):\n    if note >= 16:\n        return \"Très bien\"\n    elif note >= 14:\n        return \"Bien\"\n    elif note >= 12:\n        return \"Assez bien\"\n    elif note >= 10:\n        return \"Passable\"\n    else:\n        return \"Ajourné\"\n"
+      },
+      "quiz": [
+        {
+          "q": "Quelle ligne teste si x est égal à 5 ?",
+          "choix": [
+            "if x = 5:",
+            "if x == 5:",
+            "if x === 5:",
+            "if (x eq 5)"
+          ],
+          "bonne": 1,
+          "explication": "Un seul = sert à affecter ; pour comparer il en faut deux : ==."
+        },
+        {
+          "q": "Que vaut `True and not False` ?",
+          "choix": [
+            "True",
+            "False",
+            "None",
+            "Erreur"
+          ],
+          "bonne": 0,
+          "explication": "not False vaut True, et True and True vaut True."
+        }
+      ]
+    },
+    {
+      "id": "boucle_for",
+      "titre": "Boucles for et range()",
+      "duree_min": 20,
+      "objectifs": [
+        "Répéter une action avec for",
+        "Utiliser range()",
+        "Accumuler un résultat"
+      ],
+      "explication": "La boucle `for` répète un bloc pour chaque élément d'une séquence :\n\n```python\nfor lettre in \"abc\":\n    print(lettre)      # a, puis b, puis c\n```\n\n`range()` génère des suites de nombres :\n- `range(5)` → 0, 1, 2, 3, 4 (le 5 est **exclu**) ;\n- `range(2, 6)` → 2, 3, 4, 5 ;\n- `range(0, 10, 2)` → 0, 2, 4, 6, 8.\n\nLe schéma le plus utile : **l'accumulateur**. On part d'une valeur de départ, et on la met à jour à chaque tour.\n\n```python\nsomme = 0\nfor i in range(1, 4):\n    somme = somme + i    # ou somme += i\nprint(somme)             # 6\n```",
+      "exercice": {
+        "consigne": "Écris une fonction `somme_carres(n)` qui renvoie la somme des carrés de 1 à n inclus. Par exemple `somme_carres(3)` = 1 + 4 + 9 = 14.",
+        "code_depart": "def somme_carres(n):\n    total = 0\n    # Boucle de 1 à n inclus\n\n    return total\n",
+        "tests": [
+          {
+            "desc": "somme_carres(3) renvoie 14",
+            "code": "assert somme_carres(3) == 14"
+          },
+          {
+            "desc": "somme_carres(1) renvoie 1",
+            "code": "assert somme_carres(1) == 1"
+          },
+          {
+            "desc": "somme_carres(10) renvoie 385",
+            "code": "assert somme_carres(10) == 385"
+          },
+          {
+            "desc": "somme_carres(0) renvoie 0",
+            "code": "assert somme_carres(0) == 0"
+          }
+        ],
+        "indices": [
+          "Il faut parcourir tous les nombres de 1 à n, et ajouter le carré de chacun à total.",
+          "range(1, n) s'arrête à n-1. Pour inclure n, écris range(1, n + 1). Le carré de i s'écrit i ** 2.",
+          "for i in range(1, n + 1):\n    total += i ** 2"
+        ],
+        "solution": "def somme_carres(n):\n    total = 0\n    for i in range(1, n + 1):\n        total += i ** 2\n    return total\n"
+      },
+      "quiz": [
+        {
+          "q": "Combien de tours fait `for i in range(3, 8)` ?",
+          "choix": [
+            "3",
+            "4",
+            "5",
+            "8"
+          ],
+          "bonne": 2,
+          "explication": "3, 4, 5, 6, 7 : le 8 est exclu, soit 5 tours."
+        },
+        {
+          "q": "Quelle est la dernière valeur de i dans `for i in range(0, 10, 3)` ?",
+          "choix": [
+            "10",
+            "9",
+            "6",
+            "3"
+          ],
+          "bonne": 1,
+          "explication": "0, 3, 6, 9 : le suivant serait 12, qui dépasse 10."
+        }
+      ]
+    },
+    {
+      "id": "boucle_while",
+      "titre": "Boucle while",
+      "duree_min": 15,
+      "objectifs": [
+        "Répéter tant qu'une condition est vraie",
+        "Éviter les boucles infinies",
+        "Utiliser break"
+      ],
+      "explication": "La boucle `while` répète **tant que** sa condition est vraie. On l'utilise quand on ne sait pas d'avance combien de tours il faudra.\n\n```python\nargent = 100\nannees = 0\nwhile argent < 200:\n    argent = argent * 1.05\n    annees += 1\nprint(annees)   # 15\n```\n\n⚠️ Il faut que quelque chose **change** dans la boucle pour que la condition finisse par devenir fausse. Sinon, c'est une boucle infinie (le programme ne s'arrête jamais).\n\n`break` sort immédiatement de la boucle :\n\n```python\nwhile True:\n    ...\n    if trouve:\n        break\n```",
+      "exercice": {
+        "consigne": "La suite de Syracuse : si n est pair on le divise par 2, sinon on le remplace par 3n + 1. On s'arrête quand n vaut 1. Écris `etapes_syracuse(n)` qui renvoie le nombre d'étapes pour arriver à 1. Exemple : 6 → 3 → 10 → 5 → 16 → 8 → 4 → 2 → 1, soit 8 étapes.",
+        "code_depart": "def etapes_syracuse(n):\n    etapes = 0\n    # Tant que n n'est pas 1...\n\n    return etapes\n",
+        "tests": [
+          {
+            "desc": "etapes_syracuse(6) renvoie 8",
+            "code": "assert etapes_syracuse(6) == 8"
+          },
+          {
+            "desc": "etapes_syracuse(1) renvoie 0",
+            "code": "assert etapes_syracuse(1) == 0"
+          },
+          {
+            "desc": "etapes_syracuse(27) renvoie 111",
+            "code": "assert etapes_syracuse(27) == 111"
+          }
+        ],
+        "indices": [
+          "La boucle doit tourner tant que n est différent de 1 : while n != 1:",
+          "Pour savoir si n est pair : n % 2 == 0. Utilise // pour diviser et rester en nombre entier.",
+          "Dans la boucle : if n % 2 == 0: n = n // 2  else: n = 3 * n + 1  — puis etapes += 1"
+        ],
+        "solution": "def etapes_syracuse(n):\n    etapes = 0\n    while n != 1:\n        if n % 2 == 0:\n            n = n // 2\n        else:\n            n = 3 * n + 1\n        etapes += 1\n    return etapes\n"
+      },
+      "quiz": [
+        {
+          "q": "Que se passe-t-il avec `i = 0` puis `while i < 5: print(i)` ?",
+          "choix": [
+            "Affiche 0 à 4",
+            "Affiche 0 à 5",
+            "Boucle infinie",
+            "Erreur"
+          ],
+          "bonne": 2,
+          "explication": "i n'augmente jamais, la condition reste vraie pour toujours."
+        },
+        {
+          "q": "À quoi sert `break` ?",
+          "choix": [
+            "Passer au tour suivant",
+            "Sortir de la boucle",
+            "Arrêter tout le programme",
+            "Mettre en pause"
+          ],
+          "bonne": 1,
+          "explication": "break quitte la boucle en cours ; continue passerait au tour suivant."
+        }
+      ]
+    },
+    {
+      "id": "listes",
+      "titre": "Listes",
+      "duree_min": 25,
+      "objectifs": [
+        "Créer et indexer une liste",
+        "Ajouter avec append()",
+        "Parcourir et filtrer"
+      ],
+      "explication": "Une **liste** range plusieurs valeurs dans l'ordre :\n\n```python\nnotes = [12, 15, 9, 18]\nnotes[0]        # 12  (on compte à partir de 0 !)\nnotes[-1]       # 18  (le dernier)\nlen(notes)      # 4\nnotes.append(14)  # ajoute à la fin\n```\n\nFonctions utiles : `sum(notes)`, `max(notes)`, `min(notes)`, `sorted(notes)`.\n\n**Découpage** (slicing) : `notes[1:3]` → `[15, 9]` (de l'indice 1 inclus à 3 exclu).\n\nPour construire une nouvelle liste en filtrant :\n\n```python\nreussies = []\nfor n in notes:\n    if n >= 10:\n        reussies.append(n)\n```\n\nLa même chose en une ligne (**compréhension de liste**) — tu la croiseras partout en data science :\n\n```python\nreussies = [n for n in notes if n >= 10]\n```",
+      "exercice": {
+        "consigne": "Écris `filtrer_positifs(valeurs)` qui renvoie une **nouvelle** liste contenant uniquement les nombres strictement positifs de `valeurs`, dans le même ordre.",
+        "code_depart": "def filtrer_positifs(valeurs):\n    resultat = []\n    # Parcours valeurs et garde les positifs\n\n    return resultat\n",
+        "tests": [
+          {
+            "desc": "filtrer_positifs([3, -1, 0, 7, -5]) renvoie [3, 7]",
+            "code": "assert filtrer_positifs([3, -1, 0, 7, -5]) == [3, 7]"
+          },
+          {
+            "desc": "Une liste vide renvoie une liste vide",
+            "code": "assert filtrer_positifs([]) == []"
+          },
+          {
+            "desc": "Fonctionne avec des nombres à virgule",
+            "code": "assert filtrer_positifs([0.5, -0.5]) == [0.5]"
+          },
+          {
+            "desc": "La liste d'origine n'est pas modifiée",
+            "code": "l = [1, -2]\nfiltrer_positifs(l)\nassert l == [1, -2]"
+          }
+        ],
+        "indices": [
+          "Parcours chaque élément avec for v in valeurs: et décide s'il faut le garder.",
+          "« Strictement positif » veut dire > 0 (le zéro n'est pas gardé). Pour garder : resultat.append(v).",
+          "for v in valeurs:\n    if v > 0:\n        resultat.append(v)"
+        ],
+        "solution": "def filtrer_positifs(valeurs):\n    resultat = []\n    for v in valeurs:\n        if v > 0:\n            resultat.append(v)\n    return resultat\n"
+      },
+      "quiz": [
+        {
+          "q": "Si `l = [4, 8, 15, 16]`, que vaut `l[1:3]` ?",
+          "choix": [
+            "[4, 8]",
+            "[8, 15]",
+            "[8, 15, 16]",
+            "[4, 8, 15]"
+          ],
+          "bonne": 1,
+          "explication": "De l'indice 1 (8) inclus à l'indice 3 exclu : [8, 15]."
+        },
+        {
+          "q": "Que vaut `[x * 2 for x in [1, 2, 3]]` ?",
+          "choix": [
+            "[1, 2, 3, 1, 2, 3]",
+            "[2, 4, 6]",
+            "12",
+            "[1, 4, 9]"
+          ],
+          "bonne": 1,
+          "explication": "La compréhension applique x * 2 à chaque élément."
+        }
+      ]
+    },
+    {
+      "id": "fonctions",
+      "titre": "Fonctions",
+      "duree_min": 25,
+      "objectifs": [
+        "Définir une fonction avec def",
+        "Différencier print et return",
+        "Utiliser des paramètres par défaut"
+      ],
+      "explication": "Une **fonction** regroupe du code réutilisable :\n\n```python\ndef aire_rectangle(largeur, hauteur):\n    return largeur * hauteur\n\na = aire_rectangle(3, 4)   # a vaut 12\n```\n\n**`return` n'est pas `print`** — c'est l'erreur n°1 des débutants :\n- `print` affiche à l'écran, mais la fonction renvoie `None` ;\n- `return` renvoie une valeur qu'on peut stocker et réutiliser.\n\nUn paramètre peut avoir une **valeur par défaut** :\n\n```python\ndef saluer(nom, formule=\"Bonjour\"):\n    return f\"{formule} {nom}\"\n\nsaluer(\"Inès\")            # \"Bonjour Inès\"\nsaluer(\"Inès\", \"Salut\")   # \"Salut Inès\"\n```\n\nLes variables créées dans une fonction n'existent qu'à l'intérieur (on dit qu'elles sont **locales**).",
+      "exercice": {
+        "consigne": "Écris `moyenne(valeurs, decimales=2)` qui renvoie la moyenne de la liste arrondie à `decimales` chiffres. Si la liste est vide, renvoie `None`.",
+        "code_depart": "def moyenne(valeurs, decimales=2):\n    # Cas de la liste vide d'abord\n\n    # Puis le calcul\n    pass\n",
+        "tests": [
+          {
+            "desc": "moyenne([10, 12, 14]) renvoie 12.0",
+            "code": "assert moyenne([10, 12, 14]) == 12.0"
+          },
+          {
+            "desc": "moyenne([1, 2, 2]) renvoie 1.67",
+            "code": "assert moyenne([1, 2, 2]) == 1.67"
+          },
+          {
+            "desc": "moyenne([1, 2, 2], 0) renvoie 2.0",
+            "code": "assert moyenne([1, 2, 2], 0) == 2.0"
+          },
+          {
+            "desc": "moyenne([]) renvoie None",
+            "code": "assert moyenne([]) is None"
+          }
+        ],
+        "indices": [
+          "Traite d'abord le cas spécial : if len(valeurs) == 0: return None",
+          "La moyenne, c'est sum(valeurs) / len(valeurs). Utilise round(nombre, decimales).",
+          "return round(sum(valeurs) / len(valeurs), decimales)"
+        ],
+        "solution": "def moyenne(valeurs, decimales=2):\n    if len(valeurs) == 0:\n        return None\n    return round(sum(valeurs) / len(valeurs), decimales)\n"
+      },
+      "quiz": [
+        {
+          "q": "Que vaut `r` après `def f(): print(5)` puis `r = f()` ?",
+          "choix": [
+            "5",
+            "None",
+            "\"5\"",
+            "Erreur"
+          ],
+          "bonne": 1,
+          "explication": "f affiche 5 mais ne renvoie rien : r vaut None."
+        },
+        {
+          "q": "Avec `def p(a, b=10): return a + b`, que vaut `p(1)` ?",
+          "choix": [
+            "1",
+            "11",
+            "10",
+            "Erreur"
+          ],
+          "bonne": 1,
+          "explication": "b prend sa valeur par défaut, 10 : 1 + 10 = 11."
+        }
+      ]
+    },
+    {
+      "id": "dictionnaires",
+      "titre": "Dictionnaires",
+      "duree_min": 25,
+      "objectifs": [
+        "Associer des clés à des valeurs",
+        "Lire avec [] et get()",
+        "Compter des occurrences"
+      ],
+      "explication": "Un **dictionnaire** associe des **clés** à des **valeurs** :\n\n```python\neleve = {\"nom\": \"Yanis\", \"age\": 22, \"ville\": \"Lille\"}\neleve[\"nom\"]            # \"Yanis\"\neleve[\"age\"] = 23       # modifie\neleve[\"email\"] = \"y@x.fr\"  # ajoute une clé\n```\n\nLire une clé absente avec `[]` provoque une **KeyError**. `get` permet une valeur de secours :\n\n```python\neleve.get(\"tel\", \"inconnu\")   # \"inconnu\"\n```\n\nParcourir :\n\n```python\nfor cle, valeur in eleve.items():\n    print(cle, valeur)\n```\n\nLe schéma « compteur » est très fréquent (en traitement du langage, on compte les mots !) :\n\n```python\ncompte = {}\nfor mot in [\"chat\", \"chien\", \"chat\"]:\n    compte[mot] = compte.get(mot, 0) + 1\n# {\"chat\": 2, \"chien\": 1}\n```",
+      "exercice": {
+        "consigne": "Écris `compter_mots(texte)` qui renvoie un dictionnaire {mot: nombre d'apparitions}. Les mots sont séparés par des espaces et on ignore les majuscules (tout en minuscules).",
+        "code_depart": "def compter_mots(texte):\n    compte = {}\n    # Découpe le texte en mots, en minuscules\n\n    return compte\n",
+        "tests": [
+          {
+            "desc": "Compte correctement une phrase simple",
+            "code": "assert compter_mots('le chat et le chien') == {'le': 2, 'chat': 1, 'et': 1, 'chien': 1}"
+          },
+          {
+            "desc": "Ignore les majuscules",
+            "code": "assert compter_mots('Python python PYTHON') == {'python': 3}"
+          },
+          {
+            "desc": "Un texte vide renvoie un dictionnaire vide",
+            "code": "assert compter_mots('') == {}"
+          }
+        ],
+        "indices": [
+          "texte.lower() met tout en minuscules et texte.split() découpe en liste de mots.",
+          "Pour chaque mot : compte[mot] = compte.get(mot, 0) + 1",
+          "for mot in texte.lower().split():\n    compte[mot] = compte.get(mot, 0) + 1"
+        ],
+        "solution": "def compter_mots(texte):\n    compte = {}\n    for mot in texte.lower().split():\n        compte[mot] = compte.get(mot, 0) + 1\n    return compte\n"
+      },
+      "quiz": [
+        {
+          "q": "Que renvoie `{\"a\": 1}.get(\"b\", 0)` ?",
+          "choix": [
+            "KeyError",
+            "None",
+            "0",
+            "1"
+          ],
+          "bonne": 2,
+          "explication": "La clé \"b\" n'existe pas, get renvoie la valeur de secours 0."
+        },
+        {
+          "q": "Comment parcourir à la fois clés et valeurs d'un dictionnaire d ?",
+          "choix": [
+            "for k, v in d:",
+            "for k, v in d.items():",
+            "for k in d.values():",
+            "for (k: v) in d:"
+          ],
+          "bonne": 1,
+          "explication": ".items() donne des paires (clé, valeur)."
+        }
+      ]
+    },
+    {
+      "id": "chaines",
+      "titre": "Manipuler du texte",
+      "duree_min": 20,
+      "objectifs": [
+        "Utiliser les méthodes de str",
+        "Nettoyer un texte",
+        "Tester le contenu"
+      ],
+      "explication": "Les textes (`str`) ont de nombreuses méthodes. Elles **renvoient un nouveau texte** (l'original n'est jamais modifié) :\n\n```python\ns = \"  Bonjour le Monde  \"\ns.strip()          # \"Bonjour le Monde\"  (retire les espaces au bord)\ns.lower()          # \"  bonjour le monde  \"\ns.replace(\"o\", \"0\")\ns.split()          # [\"Bonjour\", \"le\", \"Monde\"]\n\"-\".join([\"a\", \"b\"])  # \"a-b\"\n```\n\nTester :\n\n```python\n\"jour\" in s            # True\ns.strip().startswith(\"Bon\")   # True\n\"123\".isdigit()        # True\n```\n\nOn peut enchaîner les méthodes : `s.strip().lower().split()`.\n\nNettoyer du texte est une étape de base de tout projet d'IA qui traite du langage.",
+      "exercice": {
+        "consigne": "Écris `nettoyer(texte)` qui : retire les espaces au début et à la fin, met en minuscules, et remplace les espaces multiples entre les mots par un seul espace. Exemple : `\"  Bonjour   le MONDE \"` → `\"bonjour le monde\"`.",
+        "code_depart": "def nettoyer(texte):\n    pass\n",
+        "tests": [
+          {
+            "desc": "Exemple de l'énoncé",
+            "code": "assert nettoyer('  Bonjour   le MONDE ') == 'bonjour le monde'"
+          },
+          {
+            "desc": "Un texte déjà propre ne change pas",
+            "code": "assert nettoyer('ok') == 'ok'"
+          },
+          {
+            "desc": "Un texte d'espaces seulement donne un texte vide",
+            "code": "assert nettoyer('    ') == ''"
+          }
+        ],
+        "indices": [
+          "split() sans argument découpe sur n'importe quel nombre d'espaces et ignore ceux du bord.",
+          "Une fois les mots en liste, \" \".join(liste) les recolle avec un seul espace.",
+          "return \" \".join(texte.lower().split())"
+        ],
+        "solution": "def nettoyer(texte):\n    return \" \".join(texte.lower().split())\n"
+      },
+      "quiz": [
+        {
+          "q": "Après `s = \"abc\"` puis `s.upper()`, que vaut s ?",
+          "choix": [
+            "\"ABC\"",
+            "\"abc\"",
+            "None",
+            "Erreur"
+          ],
+          "bonne": 1,
+          "explication": "Les méthodes de str renvoient un nouveau texte ; il faudrait écrire s = s.upper()."
+        },
+        {
+          "q": "Que vaut `\",\".join([\"1\", \"2\", \"3\"])` ?",
+          "choix": [
+            "\"123\"",
+            "[\"1,2,3\"]",
+            "\"1,2,3\"",
+            "\"1, 2, 3\""
+          ],
+          "bonne": 2,
+          "explication": "join colle les éléments avec le séparateur donné."
+        }
+      ]
+    },
+    {
+      "id": "projet_notes",
+      "titre": "Mini-projet : analyser des données",
+      "duree_min": 40,
+      "objectifs": [
+        "Combiner listes, dictionnaires et fonctions",
+        "Produire des statistiques",
+        "Penser comme un data scientist"
+      ],
+      "explication": "Ce mini-projet assemble tout ce que tu as appris. C'est exactement le type de traitement qu'on fait avant d'entraîner un modèle d'IA : **résumer des données**.\n\nLes données arrivent souvent sous forme de **liste de dictionnaires** (une ligne = un dictionnaire) :\n\n```python\neleves = [\n    {\"nom\": \"Ana\", \"classe\": \"A\", \"note\": 14},\n    {\"nom\": \"Bilal\", \"classe\": \"B\", \"note\": 9},\n    {\"nom\": \"Chloé\", \"classe\": \"A\", \"note\": 17},\n]\n```\n\nMéthode conseillée :\n1. regrouper les notes par classe dans un dictionnaire `{classe: [notes]}` ;\n2. calculer la moyenne de chaque groupe ;\n3. renvoyer le résultat.\n\nDécoupe le problème en petites fonctions : c'est plus facile à tester et à corriger.",
+      "exercice": {
+        "consigne": "Écris `moyennes_par_classe(eleves)` qui reçoit une liste de dictionnaires (clés `nom`, `classe`, `note`) et renvoie `{classe: moyenne arrondie à 2 décimales}`.",
+        "code_depart": "def moyennes_par_classe(eleves):\n    groupes = {}\n    # 1. Regroupe les notes par classe\n\n    # 2. Calcule la moyenne de chaque classe\n    resultat = {}\n\n    return resultat\n",
+        "tests": [
+          {
+            "desc": "Exemple de la leçon",
+            "code": "d = [{'nom': 'Ana', 'classe': 'A', 'note': 14}, {'nom': 'Bilal', 'classe': 'B', 'note': 9}, {'nom': 'Chloé', 'classe': 'A', 'note': 17}]\nassert moyennes_par_classe(d) == {'A': 15.5, 'B': 9.0}"
+          },
+          {
+            "desc": "Arrondi à 2 décimales",
+            "code": "d = [{'nom': 'x', 'classe': 'C', 'note': 10}, {'nom': 'y', 'classe': 'C', 'note': 10}, {'nom': 'z', 'classe': 'C', 'note': 11}]\nassert moyennes_par_classe(d) == {'C': 10.33}"
+          },
+          {
+            "desc": "Liste vide → dictionnaire vide",
+            "code": "assert moyennes_par_classe([]) == {}"
+          }
+        ],
+        "indices": [
+          "Étape 1 : pour chaque élève e, ajoute e[\"note\"] à la liste groupes[e[\"classe\"]] (crée la liste si elle n'existe pas).",
+          "groupes.setdefault(classe, []).append(note) crée la liste vide si besoin puis ajoute. Étape 2 : for classe, notes in groupes.items():",
+          "resultat[classe] = round(sum(notes) / len(notes), 2)"
+        ],
+        "solution": "def moyennes_par_classe(eleves):\n    groupes = {}\n    for e in eleves:\n        groupes.setdefault(e[\"classe\"], []).append(e[\"note\"])\n    resultat = {}\n    for classe, notes in groupes.items():\n        resultat[classe] = round(sum(notes) / len(notes), 2)\n    return resultat\n"
+      },
+      "quiz": [
+        {
+          "q": "Comment lire la note du premier élève de la liste `eleves` ?",
+          "choix": [
+            "eleves.note[0]",
+            "eleves[0][\"note\"]",
+            "eleves[\"note\"][0]",
+            "eleves[0].note"
+          ],
+          "bonne": 1,
+          "explication": "eleves[0] est un dictionnaire ; on lit ensuite sa clé \"note\"."
+        },
+        {
+          "q": "Pourquoi découper un problème en petites fonctions ?",
+          "choix": [
+            "Le code tourne plus vite",
+            "C'est obligatoire en Python",
+            "Chaque morceau est plus facile à tester et corriger",
+            "Ça évite les variables"
+          ],
+          "bonne": 2,
+          "explication": "De petites fonctions se testent une par une : on localise vite les erreurs."
+        }
+      ]
+    }
+  ]
+}
