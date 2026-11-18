@@ -205,7 +205,7 @@ async function chargerAccueil() {
 
 // ================================================================== page : le chemin
 const DECALAGES = [0, 46, 70, 46, 0, -46, -70, -46];
-const COULEURS = [["#ff7a1a", "#d95f05"], ["#2d8cf0", "#1d6fc4"], ["#8b5cf6", "#6d3fd6"], ["#2fb56b", "#1f8f51"]];
+const COULEURS = [["#ff7a1a", "#d95f05"], ["#2d8cf0", "#1d6fc4"], ["#8b5cf6", "#6d3fd6"], ["#2fb56b", "#1f8f51"], ["#e2468f", "#b8306f"], ["#14a3a3", "#0d7f7f"]];
 
 async function pageChemin() {
   nav("apprendre");

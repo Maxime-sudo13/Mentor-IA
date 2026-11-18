@@ -19,8 +19,10 @@ Aucune bibliothèque Python à installer : tout est écrit avec la bibliothèque
 | 🐍 Bases de Python | 10 | variables, types, conditions, boucles, listes, fonctions, dictionnaires, texte, mini-projet |
 | 🧰 Python intermédiaire | 8 | tuples, matrices, compréhensions, tri et lambda, exceptions, bibliothèque standard, classes, mini-projet |
 | 🧠 L'IA à la main | 9 | vecteurs, distance, normalisation, k plus proches voisins, mesure d'erreur, régression linéaire, neurone, descente de gradient, entraîner un modèle |
+| 📊 Travailler avec des données | 8 | fichiers, CSV, JSON, nettoyage, regroupement, écart-type et score z, séparation entraînement / test, mini-projet rapport |
+| 🤖 L'IA à la main 2 | 9 | similarité cosinus, sac de mots, mini modèle de langage (bigrammes), perceptron, régression logistique, k-means, arbre de décision (Gini), réseau à 2 couches (XOR), détecteur de sentiments |
 
-Tous les exercices tournent avec Python seul (aucune bibliothèque à installer) : on comprend ce que font NumPy et PyTorch avant de s'en servir.
+Soit **44 leçons**. Tous les exercices tournent avec Python seul (aucune bibliothèque à installer) : on comprend ce que font NumPy et PyTorch avant de s'en servir.
 
 ## Ce que fait la plateforme
 

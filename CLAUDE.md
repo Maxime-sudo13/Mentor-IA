@@ -34,10 +34,12 @@ de modèles « abliterated » (garde-fous retirés) pour des élèves.
 - `app/correcteur.py` + `app/runner.py` : exécution du code élève dans un sous-processus (timeout 5 s)
 - `app/tuteur.py` : client Ollama, garde-fous, repli sans IA
 - `app/progression.py` : SQLite local `data/progression.db`
-- `content/*.json` : modules de cours (un fichier = un module, rangés par leur champ `"ordre"`, avec une `"icone"`). Actuellement 27 leçons :
+- `content/*.json` : modules de cours (un fichier = un module, rangés par leur champ `"ordre"`, avec une `"icone"`). Actuellement 44 leçons :
   1. `python_bases.json` (10) : bases de Python ;
   2. `python_intermediaire.json` (8) : tuples, matrices, compréhensions, tri/lambda, exceptions, bibliothèque standard, classes, mini-projet inventaire ;
-  3. `ia_a_la_main.json` (9) : l'IA en Python pur (vecteurs, distance, normalisation, k-NN, exactitude/EQM, régression linéaire, neurone sigmoïde, descente de gradient, mini-projet d'entraînement).
+  3. `ia_a_la_main.json` (9) : l'IA en Python pur (vecteurs, distance, normalisation, k-NN, exactitude/EQM, régression linéaire, neurone sigmoïde, descente de gradient, mini-projet d'entraînement) ;
+  4. `donnees.json` (8) : fichiers, CSV, JSON, nettoyage, regroupement, écart-type/score z, séparation entraînement/test, mini-projet rapport de ventes ;
+  5. `ia_a_la_main_2.json` (9) : similarité cosinus, sac de mots, bigrammes (mini modèle de langage), perceptron, régression logistique, k-means, Gini/arbre de décision, réseau 2 couches (XOR), détecteur de sentiments.
   Les identifiants de leçon doivent être uniques entre modules (vérifié par `verifier_contenu.py`). Les exercices n'utilisent que la bibliothèque standard.
 - `web/` : interface HTML/CSS/JS sans dépendance (hors ligne), style « appli ludique » :
   - routes : `#/` chemin de leçons, `#/lecon/<id>` lecteur plein écran, `#/revisions`, `#/progres` ;

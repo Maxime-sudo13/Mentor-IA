@@ -1,0 +1,497 @@
+{
+  "id": "donnees",
+  "ordre": 4,
+  "icone": "📊",
+  "titre": "Travailler avec des données",
+  "description": "Lire, nettoyer, regrouper et préparer des données réelles : fichiers, CSV, JSON, statistiques et séparation entraînement / test.",
+  "lecons": [
+    {
+      "id": "fichiers",
+      "titre": "Lire et écrire des fichiers",
+      "duree_min": 20,
+      "objectifs": [
+        "Ouvrir un fichier avec with open()",
+        "Lire ligne par ligne",
+        "Écrire dans un fichier"
+      ],
+      "explication": "Les données vivent dans des **fichiers**. On les ouvre avec `open`, toujours dans un bloc `with`, qui referme le fichier automatiquement, même en cas d'erreur :\n\n```python\nwith open(\"notes.txt\", encoding=\"utf-8\") as f:\n    contenu = f.read()        # tout le texte d'un coup\n```\n\nPour un gros fichier, on le parcourt **ligne par ligne**. Chaque ligne se termine par un retour à la ligne `\\n`, qu'on retire avec `strip()` :\n\n```python\nwith open(\"notes.txt\", encoding=\"utf-8\") as f:\n    for ligne in f:\n        print(ligne.strip())\n```\n\nPour écrire, on ouvre en mode `\"w\"` (qui efface le fichier) ou `\"a\"` (qui ajoute à la fin) :\n\n```python\nwith open(\"resultats.txt\", \"w\", encoding=\"utf-8\") as f:\n    f.write(\"Bonjour\\n\")\n```\n\nPrécise toujours `encoding=\"utf-8\"` : sinon, les accents peuvent être mal lus, surtout sous Windows.\n",
+      "exercice": {
+        "consigne": "Écris `compter_lignes_utiles(chemin)` qui renvoie le nombre de lignes du fichier qui ne sont **pas vides** (une ligne ne contenant que des espaces compte comme vide).",
+        "code_depart": "def compter_lignes_utiles(chemin):\n    n = 0\n    # Ouvre le fichier et parcours ses lignes\n\n    return n\n",
+        "tests": [
+          {
+            "desc": "Ignore les lignes vides et les lignes d'espaces",
+            "code": "import tempfile, os\nd = tempfile.mkdtemp()\np = os.path.join(d, 't.txt')\nopen(p, 'w', encoding='utf-8').write('a\\n\\nb\\n   \\nc')\nassert compter_lignes_utiles(p) == 3"
+          },
+          {
+            "desc": "Fichier vide → 0",
+            "code": "import tempfile, os\nd = tempfile.mkdtemp()\np = os.path.join(d, 'v.txt')\nopen(p, 'w', encoding='utf-8').close()\nassert compter_lignes_utiles(p) == 0"
+          },
+          {
+            "desc": "Lit correctement les accents",
+            "code": "import tempfile, os\nd = tempfile.mkdtemp()\np = os.path.join(d, 'a.txt')\nopen(p, 'w', encoding='utf-8').write('été\\nhiver\\n')\nassert compter_lignes_utiles(p) == 2"
+          }
+        ],
+        "indices": [
+          "with open(chemin, encoding=\"utf-8\") as f: puis for ligne in f:",
+          "ligne.strip() vaut \"\" pour une ligne vide ou faite d'espaces : compte seulement les autres.",
+          "for ligne in f:\n    if ligne.strip():\n        n += 1"
+        ],
+        "solution": "def compter_lignes_utiles(chemin):\n    n = 0\n    with open(chemin, encoding=\"utf-8\") as f:\n        for ligne in f:\n            if ligne.strip():\n                n += 1\n    return n\n"
+      },
+      "quiz": [
+        {
+          "q": "Quel mode d'ouverture ajoute du texte à la fin d'un fichier sans l'effacer ?",
+          "choix": [
+            "\"r\"",
+            "\"w\"",
+            "\"a\"",
+            "\"x\""
+          ],
+          "bonne": 2,
+          "explication": "\"a\" (append) ajoute à la fin ; \"w\" efface tout avant d'écrire."
+        },
+        {
+          "q": "Pourquoi utiliser `with open(...) as f:` ?",
+          "choix": [
+            "C'est plus rapide",
+            "Le fichier est refermé automatiquement, même en cas d'erreur",
+            "C'est obligatoire pour lire",
+            "Pour lire les accents"
+          ],
+          "bonne": 1,
+          "explication": "Le bloc with garantit la fermeture du fichier à la sortie du bloc."
+        }
+      ]
+    },
+    {
+      "id": "csv",
+      "titre": "Le format CSV",
+      "duree_min": 20,
+      "objectifs": [
+        "Reconnaître un fichier CSV",
+        "Le lire avec csv.DictReader",
+        "Convertir les colonnes en nombres"
+      ],
+      "explication": "Le **CSV** est le format de données le plus répandu : un tableau en texte, une ligne par enregistrement, des virgules entre les colonnes, et une première ligne d'en-tête.\n\n```\nnom,ville,age\nAna,Lyon,23\nBilal,Lille,31\n```\n\nLe module `csv` le découpe correctement, y compris les cas pièges comme une virgule entre guillemets. `DictReader` donne chaque ligne sous forme de dictionnaire :\n\n```python\nimport csv\nwith open(\"eleves.csv\", encoding=\"utf-8\") as f:\n    for ligne in csv.DictReader(f):\n        print(ligne[\"nom\"], ligne[\"age\"])\n```\n\nAttention : **tout est lu comme du texte**. `ligne[\"age\"]` vaut `\"23\"`, pas `23` : il faut convertir avec `int()` ou `float()` avant de calculer.\n\nPour lire un CSV déjà en mémoire, on l'enveloppe dans `io.StringIO`, qui se comporte comme un fichier :\n\n```python\nimport io\nlignes = list(csv.DictReader(io.StringIO(texte)))\n```\n",
+      "exercice": {
+        "consigne": "Écris `moyenne_colonne(texte_csv, colonne)` qui renvoie la moyenne des valeurs numériques de la colonne demandée, arrondie à 2 décimales.",
+        "code_depart": "import csv\nimport io\n\ndef moyenne_colonne(texte_csv, colonne):\n    pass\n",
+        "tests": [
+          {
+            "desc": "Moyenne de la colonne age",
+            "code": "t = 'nom,ville,age\\nAna,Lyon,23\\nBilal,Lille,31\\nChloé,Paris,30'\nassert moyenne_colonne(t, 'age') == 28.0"
+          },
+          {
+            "desc": "Valeurs décimales",
+            "code": "t = 'produit,prix\\nA,1.5\\nB,2.25'\nassert moyenne_colonne(t, 'prix') == 1.88"
+          },
+          {
+            "desc": "Gère une virgule entre guillemets",
+            "code": "t = 'nom,note\\n\"Dupont, Jean\",12\\nZoé,16'\nassert moyenne_colonne(t, 'note') == 14.0"
+          }
+        ],
+        "indices": [
+          "lignes = list(csv.DictReader(io.StringIO(texte_csv)))",
+          "Convertis chaque valeur : [float(l[colonne]) for l in lignes]",
+          "valeurs = [float(l[colonne]) for l in lignes]\nreturn round(sum(valeurs) / len(valeurs), 2)"
+        ],
+        "solution": "import csv\nimport io\n\ndef moyenne_colonne(texte_csv, colonne):\n    lignes = list(csv.DictReader(io.StringIO(texte_csv)))\n    valeurs = [float(l[colonne]) for l in lignes]\n    return round(sum(valeurs) / len(valeurs), 2)\n"
+      },
+      "quiz": [
+        {
+          "q": "Dans `csv.DictReader`, quel est le type de `ligne[\"age\"]` ?",
+          "choix": [
+            "int",
+            "float",
+            "str",
+            "Ça dépend du contenu"
+          ],
+          "bonne": 2,
+          "explication": "Le module csv lit tout comme du texte : la conversion est à ta charge."
+        },
+        {
+          "q": "Pourquoi ne pas simplement faire `ligne.split(\",\")` ?",
+          "choix": [
+            "C'est plus lent",
+            "Ça casse sur les valeurs qui contiennent une virgule entre guillemets",
+            "split n'existe pas",
+            "C'est pareil"
+          ],
+          "bonne": 1,
+          "explication": "« Dupont, Jean » entre guillemets est une seule valeur ; le module csv le sait, split non."
+        }
+      ]
+    },
+    {
+      "id": "json",
+      "titre": "Le format JSON",
+      "duree_min": 20,
+      "objectifs": [
+        "Lire du JSON avec json.loads",
+        "Naviguer dans des données imbriquées",
+        "Produire du JSON avec json.dumps"
+      ],
+      "explication": "Le **JSON** est le format des API web et des fichiers de configuration. Il ressemble beaucoup aux dictionnaires et listes Python :\n\n```json\n{\"eleves\": [{\"nom\": \"Ana\", \"age\": 23}, {\"nom\": \"Léo\", \"age\": 16}]}\n```\n\n`json.loads` transforme un texte JSON en objets Python, et `json.dumps` fait l'inverse :\n\n```python\nimport json\ndonnees = json.loads(texte)\ndonnees[\"eleves\"][0][\"nom\"]      # \"Ana\"\njson.dumps({\"ok\": True})         # '{\"ok\": true}'\n```\n\nContrairement au CSV, les nombres restent des nombres. Les données sont souvent **imbriquées** : un dictionnaire qui contient une liste, qui contient des dictionnaires… On y navigue étape par étape.\n\nLes réponses des modèles d'IA appelés par API arrivent presque toujours en JSON.\n",
+      "exercice": {
+        "consigne": "Écris `noms_majeurs(texte_json)` : le texte a la forme `{\"eleves\": [{\"nom\": ..., \"age\": ...}, ...]}`. Renvoie la liste triée par ordre alphabétique des noms des élèves de 18 ans ou plus.",
+        "code_depart": "import json\n\ndef noms_majeurs(texte_json):\n    pass\n",
+        "tests": [
+          {
+            "desc": "Garde seulement les majeurs, triés",
+            "code": "t = '{\"eleves\": [{\"nom\": \"Zoé\", \"age\": 19}, {\"nom\": \"Léo\", \"age\": 16}, {\"nom\": \"Ana\", \"age\": 18}]}'\nassert noms_majeurs(t) == ['Ana', 'Zoé']"
+          },
+          {
+            "desc": "Aucun élève → liste vide",
+            "code": "assert noms_majeurs('{\"eleves\": []}') == []"
+          },
+          {
+            "desc": "Tous mineurs → liste vide",
+            "code": "assert noms_majeurs('{\"eleves\": [{\"nom\": \"Tom\", \"age\": 12}]}') == []"
+          }
+        ],
+        "indices": [
+          "donnees = json.loads(texte_json), puis la liste est donnees[\"eleves\"].",
+          "Garde les noms avec une compréhension : [e[\"nom\"] for e in ... if e[\"age\"] >= 18]",
+          "return sorted(e[\"nom\"] for e in json.loads(texte_json)[\"eleves\"] if e[\"age\"] >= 18)"
+        ],
+        "solution": "import json\n\ndef noms_majeurs(texte_json):\n    eleves = json.loads(texte_json)[\"eleves\"]\n    return sorted(e[\"nom\"] for e in eleves if e[\"age\"] >= 18)\n"
+      },
+      "quiz": [
+        {
+          "q": "Que devient `true` (JSON) une fois lu par `json.loads` ?",
+          "choix": [
+            "\"true\"",
+            "True",
+            "1",
+            "Une erreur"
+          ],
+          "bonne": 1,
+          "explication": "Les booléens JSON true / false deviennent True / False en Python."
+        },
+        {
+          "q": "Avec `d = {\"a\": [{\"b\": 5}]}`, comment lire 5 ?",
+          "choix": [
+            "d[\"b\"]",
+            "d[\"a\"][\"b\"]",
+            "d[\"a\"][0][\"b\"]",
+            "d[0][\"b\"]"
+          ],
+          "bonne": 2,
+          "explication": "d[\"a\"] est une liste, son élément 0 est un dictionnaire, dont on lit la clé \"b\"."
+        }
+      ]
+    },
+    {
+      "id": "nettoyage",
+      "titre": "Nettoyer des données",
+      "duree_min": 25,
+      "objectifs": [
+        "Repérer les valeurs manquantes ou invalides",
+        "Normaliser du texte",
+        "Décider quoi faire des lignes abîmées"
+      ],
+      "explication": "Les données réelles sont **sales** : espaces en trop, majuscules incohérentes, cases vides, « N/A », fautes de saisie. Un modèle entraîné sur des données sales donne des résultats faux, d'où le dicton « garbage in, garbage out ».\n\nNettoyer un texte :\n\n```python\n\"  ana  \".strip().title()     # \"Ana\"\n```\n\nPour une valeur numérique, on tente la conversion et on attrape l'erreur :\n\n```python\ntry:\n    age = int(ligne[\"age\"])\nexcept ValueError:\n    age = None\n```\n\nEnsuite, il faut **décider** : supprimer la ligne, remplacer la valeur manquante par la moyenne, ou garder un marqueur. Il n'y a pas de règle universelle, mais la décision doit être consciente et documentée.\n\nBon réflexe : compter combien de lignes tu écartes. Si c'est la moitié du fichier, le problème est ailleurs.\n",
+      "exercice": {
+        "consigne": "Écris `nettoyer(lignes)` : chaque ligne est un dictionnaire `{\"nom\": ..., \"age\": ...}` de textes. Renvoie une nouvelle liste où le nom est sans espaces au bord et avec une majuscule à chaque mot (`title()`), l'âge est un `int`, et où les lignes au nom vide ou à l'âge invalide sont écartées.",
+        "code_depart": "def nettoyer(lignes):\n    propres = []\n    for l in lignes:\n        pass\n    return propres\n",
+        "tests": [
+          {
+            "desc": "Nettoie le nom et convertit l'âge",
+            "code": "assert nettoyer([{'nom': '  ana dupont ', 'age': '23'}]) == [{'nom': 'Ana Dupont', 'age': 23}]"
+          },
+          {
+            "desc": "Écarte les âges invalides",
+            "code": "assert nettoyer([{'nom': 'Léo', 'age': 'N/A'}, {'nom': 'Zoé', 'age': '31'}]) == [{'nom': 'Zoé', 'age': 31}]"
+          },
+          {
+            "desc": "Écarte les noms vides",
+            "code": "assert nettoyer([{'nom': '   ', 'age': '20'}]) == []"
+          },
+          {
+            "desc": "Accepte un âge avec des espaces",
+            "code": "assert nettoyer([{'nom': 'tom', 'age': ' 7 '}]) == [{'nom': 'Tom', 'age': 7}]"
+          }
+        ],
+        "indices": [
+          "nom = l[\"nom\"].strip().title() ; si nom est vide, passe à la ligne suivante avec continue.",
+          "int(\" 7 \") fonctionne (int ignore les espaces au bord) ; entoure la conversion d'un try / except ValueError: continue.",
+          "propres.append({\"nom\": nom, \"age\": age})"
+        ],
+        "solution": "def nettoyer(lignes):\n    propres = []\n    for l in lignes:\n        nom = l[\"nom\"].strip().title()\n        if not nom:\n            continue\n        try:\n            age = int(l[\"age\"])\n        except ValueError:\n            continue\n        propres.append({\"nom\": nom, \"age\": age})\n    return propres\n"
+      },
+      "quiz": [
+        {
+          "q": "Que signifie « garbage in, garbage out » ?",
+          "choix": [
+            "Il faut vider la corbeille",
+            "Des données de mauvaise qualité donnent des résultats de mauvaise qualité",
+            "Les modèles suppriment les mauvaises données",
+            "Il faut tout jeter"
+          ],
+          "bonne": 1,
+          "explication": "Aucun modèle ne peut compenser des données fausses ou incohérentes."
+        },
+        {
+          "q": "Que vaut `\"  jean-paul \".strip().title()` ?",
+          "choix": [
+            "\"Jean-paul\"",
+            "\"Jean-Paul\"",
+            "\"JEAN-PAUL\"",
+            "\"jean-paul\""
+          ],
+          "bonne": 1,
+          "explication": "title() met une majuscule après chaque séparateur, tiret compris."
+        }
+      ]
+    },
+    {
+      "id": "grouper",
+      "titre": "Regrouper et agréger",
+      "duree_min": 20,
+      "objectifs": [
+        "Regrouper des lignes par catégorie",
+        "Calculer total, nombre et moyenne par groupe",
+        "Utiliser defaultdict"
+      ],
+      "explication": "Question classique sur des données : « quel est le total **par** ville ? », « la moyenne **par** classe ? ». On **regroupe** les lignes selon une clé, puis on **agrège** chaque groupe.\n\n```python\nventes = [(\"Lyon\", 20), (\"Lille\", 5), (\"Lyon\", 15)]\ntotaux = {}\nfor ville, montant in ventes:\n    totaux[ville] = totaux.get(ville, 0) + montant\n# {\"Lyon\": 35, \"Lille\": 5}\n```\n\n`collections.defaultdict` évite le `get` : une clé absente reçoit automatiquement une valeur de départ.\n\n```python\nfrom collections import defaultdict\ngroupes = defaultdict(list)\nfor ville, montant in ventes:\n    groupes[ville].append(montant)\n# {\"Lyon\": [20, 15], \"Lille\": [5]}\n```\n\nÀ partir des groupes, on calcule ce qu'on veut : `sum`, `len`, `max`, la moyenne… C'est exactement ce que fait le `groupby` de pandas, que tu utiliseras plus tard.\n",
+      "exercice": {
+        "consigne": "Écris `stats_par_ville(ventes)` : `ventes` est une liste de paires `(ville, montant)`. Renvoie un dictionnaire `{ville: {\"total\": ..., \"nombre\": ..., \"moyenne\": ...}}`, total et moyenne arrondis à 2 décimales.",
+        "code_depart": "from collections import defaultdict\n\ndef stats_par_ville(ventes):\n    groupes = defaultdict(list)\n    # 1. regrouper les montants par ville\n    # 2. calculer les statistiques de chaque groupe\n    return {}\n",
+        "tests": [
+          {
+            "desc": "Deux villes",
+            "code": "r = stats_par_ville([('Lyon', 20), ('Lille', 5), ('Lyon', 15)])\nassert r == {'Lyon': {'total': 35, 'nombre': 2, 'moyenne': 17.5}, 'Lille': {'total': 5, 'nombre': 1, 'moyenne': 5.0}}"
+          },
+          {
+            "desc": "Arrondis à 2 décimales",
+            "code": "r = stats_par_ville([('A', 1), ('A', 1), ('A', 2.005)])\nassert r['A']['moyenne'] == 1.33 and r['A']['nombre'] == 3"
+          },
+          {
+            "desc": "Aucune vente → dictionnaire vide",
+            "code": "assert stats_par_ville([]) == {}"
+          }
+        ],
+        "indices": [
+          "Étape 1 : for ville, montant in ventes: groupes[ville].append(montant)",
+          "Étape 2 : for ville, montants in groupes.items(): construis le petit dictionnaire de stats.",
+          "resultat[ville] = {\"total\": round(sum(montants), 2), \"nombre\": len(montants), \"moyenne\": round(sum(montants) / len(montants), 2)}"
+        ],
+        "solution": "from collections import defaultdict\n\ndef stats_par_ville(ventes):\n    groupes = defaultdict(list)\n    for ville, montant in ventes:\n        groupes[ville].append(montant)\n    resultat = {}\n    for ville, montants in groupes.items():\n        resultat[ville] = {\n            \"total\": round(sum(montants), 2),\n            \"nombre\": len(montants),\n            \"moyenne\": round(sum(montants) / len(montants), 2),\n        }\n    return resultat\n"
+      },
+      "quiz": [
+        {
+          "q": "Avec `d = defaultdict(int)`, que vaut `d[\"x\"]` si \"x\" n'a jamais été ajouté ?",
+          "choix": [
+            "KeyError",
+            "None",
+            "0",
+            "\"x\""
+          ],
+          "bonne": 2,
+          "explication": "int() vaut 0 : la clé absente est créée avec cette valeur."
+        },
+        {
+          "q": "« Regrouper puis agréger » sert à répondre à…",
+          "choix": [
+            "« Quel est le total par catégorie ? »",
+            "« Comment trier ? »",
+            "« Comment lire un fichier ? »",
+            "« Comment écrire une classe ? »"
+          ],
+          "bonne": 0,
+          "explication": "On rassemble les lignes d'une même catégorie, puis on résume chaque groupe."
+        }
+      ]
+    },
+    {
+      "id": "dispersion",
+      "titre": "Dispersion : variance et écart-type",
+      "duree_min": 25,
+      "objectifs": [
+        "Comprendre ce que mesure l'écart-type",
+        "Le calculer à la main",
+        "Standardiser des valeurs (score z)"
+      ],
+      "explication": "Deux classes ont 10 de moyenne. Dans la première, tout le monde a entre 9 et 11 ; dans la seconde, les notes vont de 0 à 20. La moyenne ne dit pas tout : il faut mesurer la **dispersion**.\n\nLa **variance** est la moyenne des carrés des écarts à la moyenne. L'**écart-type** est sa racine carrée, et il s'exprime dans la même unité que les données.\n\n```python\nimport math\nnotes = [8, 10, 12]\nm = sum(notes) / len(notes)                              # 10\nvariance = sum((x - m) ** 2 for x in notes) / len(notes)  # 2.67\necart_type = math.sqrt(variance)                         # 1.63\n```\n\nLa **standardisation** (score z) exprime chaque valeur en « nombre d'écarts-types au-dessus ou en dessous de la moyenne » :\n\n```python\nz = (x - m) / ecart_type\n```\n\nUn z de 2 signifie « nettement au-dessus de la moyenne ». C'est l'autre grande façon de mettre des données à l'échelle avant un entraînement, avec la normalisation min-max.\n",
+      "exercice": {
+        "consigne": "Écris `ecart_type(valeurs)` (arrondi à 3 décimales) puis `standardiser(valeurs)` qui renvoie la liste des scores z, chacun arrondi à 2 décimales. Si l'écart-type vaut 0, `standardiser` renvoie des `0.0`.",
+        "code_depart": "import math\n\ndef ecart_type(valeurs):\n    pass\n\ndef standardiser(valeurs):\n    pass\n",
+        "tests": [
+          {
+            "desc": "ecart_type([8, 10, 12]) renvoie 1.633",
+            "code": "assert ecart_type([8, 10, 12]) == 1.633"
+          },
+          {
+            "desc": "Valeurs identiques → écart-type 0",
+            "code": "assert ecart_type([5, 5, 5]) == 0"
+          },
+          {
+            "desc": "Scores z",
+            "code": "assert standardiser([2, 4, 6]) == [-1.22, 0.0, 1.22]"
+          },
+          {
+            "desc": "Valeurs identiques → scores z nuls",
+            "code": "assert standardiser([3, 3]) == [0.0, 0.0]"
+          }
+        ],
+        "indices": [
+          "Moyenne m, puis variance = sum((x - m) ** 2 for x in valeurs) / len(valeurs), puis math.sqrt.",
+          "Dans standardiser, ne réutilise pas la version arrondie : recalcule l'écart-type exact (ou calcule-le sans arrondi).",
+          "return [round((x - m) / et, 2) for x in valeurs]"
+        ],
+        "solution": "import math\n\ndef _ecart_type_exact(valeurs):\n    m = sum(valeurs) / len(valeurs)\n    return math.sqrt(sum((x - m) ** 2 for x in valeurs) / len(valeurs))\n\ndef ecart_type(valeurs):\n    return round(_ecart_type_exact(valeurs), 3)\n\ndef standardiser(valeurs):\n    m = sum(valeurs) / len(valeurs)\n    et = _ecart_type_exact(valeurs)\n    if et == 0:\n        return [0.0] * len(valeurs)\n    return [round((x - m) / et, 2) for x in valeurs]\n"
+      },
+      "quiz": [
+        {
+          "q": "Un élève a un score z de -1 en maths. Cela veut dire…",
+          "choix": [
+            "Il a eu -1",
+            "Il est un écart-type en dessous de la moyenne",
+            "Il est dernier",
+            "Il a 1 point de moins que la moyenne"
+          ],
+          "bonne": 1,
+          "explication": "Le score z compte en écarts-types, pas en points."
+        },
+        {
+          "q": "Quelle série a le plus grand écart-type ?",
+          "choix": [
+            "[10, 10, 10]",
+            "[9, 10, 11]",
+            "[0, 10, 20]",
+            "Elles sont toutes égales"
+          ],
+          "bonne": 2,
+          "explication": "Mêmes moyennes, mais [0, 10, 20] est bien plus étalée."
+        }
+      ]
+    },
+    {
+      "id": "separer",
+      "titre": "Séparer entraînement et test",
+      "duree_min": 20,
+      "objectifs": [
+        "Comprendre pourquoi garder des données de test",
+        "Mélanger de façon reproductible",
+        "Découper un jeu de données"
+      ],
+      "explication": "Évaluer un modèle sur les données qui ont servi à l'entraîner, c'est comme corriger un élève sur les exercices dont il a déjà vu la correction : la note ne veut rien dire. On met donc de côté une partie des données, le **jeu de test**, que le modèle ne voit jamais pendant l'entraînement.\n\nAvant de couper, on **mélange**, sinon le test pourrait ne contenir que les dernières lignes du fichier (par exemple une seule catégorie). Pour obtenir le même mélange à chaque exécution, on fixe une **graine** :\n\n```python\nimport random\ngen = random.Random(42)      # graine 42 : mélange reproductible\ncopie = list(donnees)\ngen.shuffle(copie)\n```\n\nOn découpe ensuite, souvent 80 % pour l'entraînement et 20 % pour le test :\n\n```python\nn_test = round(len(copie) * 0.2)\ntest, entrainement = copie[:n_test], copie[n_test:]\n```\n\nCe réflexe est la base de toute évaluation honnête en machine learning.\n",
+      "exercice": {
+        "consigne": "Écris `separer(donnees, part_test, graine)` qui renvoie `(entrainement, test)` : mélange une **copie** des données avec `random.Random(graine)`, puis met les `round(len * part_test)` premiers éléments dans `test` et le reste dans `entrainement`. La liste d'origine ne doit pas être modifiée.",
+        "code_depart": "import random\n\ndef separer(donnees, part_test, graine):\n    pass\n",
+        "tests": [
+          {
+            "desc": "Bonnes tailles (80 / 20)",
+            "code": "e, t = separer(list(range(10)), 0.2, 1)\nassert len(e) == 8 and len(t) == 2"
+          },
+          {
+            "desc": "Aucun élément perdu ni en double",
+            "code": "e, t = separer(list(range(50)), 0.3, 7)\nassert sorted(e + t) == list(range(50)) and not set(e) & set(t)"
+          },
+          {
+            "desc": "Même graine → même découpage",
+            "code": "assert separer(list(range(20)), 0.25, 3) == separer(list(range(20)), 0.25, 3)"
+          },
+          {
+            "desc": "Les données sont bien mélangées",
+            "code": "e, t = separer(list(range(100)), 0.2, 5)\nassert t != list(range(20))"
+          },
+          {
+            "desc": "La liste d'origine n'est pas modifiée",
+            "code": "d = list(range(10))\nseparer(d, 0.5, 2)\nassert d == list(range(10))"
+          }
+        ],
+        "indices": [
+          "copie = list(donnees), puis random.Random(graine).shuffle(copie).",
+          "n_test = round(len(copie) * part_test)",
+          "return copie[n_test:], copie[:n_test]"
+        ],
+        "solution": "import random\n\ndef separer(donnees, part_test, graine):\n    copie = list(donnees)\n    random.Random(graine).shuffle(copie)\n    n_test = round(len(copie) * part_test)\n    return copie[n_test:], copie[:n_test]\n"
+      },
+      "quiz": [
+        {
+          "q": "Pourquoi évaluer un modèle sur des données qu'il n'a jamais vues ?",
+          "choix": [
+            "Pour aller plus vite",
+            "Pour mesurer sa capacité à généraliser, pas à réciter",
+            "Parce que les données d'entraînement sont effacées",
+            "Ce n'est pas nécessaire"
+          ],
+          "bonne": 1,
+          "explication": "Un modèle peut « apprendre par cœur » ses exemples : seul un test inédit dit s'il a compris."
+        },
+        {
+          "q": "À quoi sert la graine d'un générateur aléatoire ?",
+          "choix": [
+            "À rendre le hasard plus aléatoire",
+            "À obtenir le même tirage à chaque exécution",
+            "À accélérer le calcul",
+            "À trier les données"
+          ],
+          "bonne": 1,
+          "explication": "Avec la même graine, le même mélange : les résultats sont reproductibles."
+        }
+      ]
+    },
+    {
+      "id": "projet_rapport",
+      "titre": "Mini-projet : un rapport de ventes",
+      "duree_min": 40,
+      "objectifs": [
+        "Enchaîner lecture, nettoyage et agrégation",
+        "Produire un résumé exploitable",
+        "Rendre le traitement robuste aux lignes abîmées"
+      ],
+      "explication": "Un **pipeline de données** enchaîne toujours les mêmes étapes : lire → nettoyer → agréger → résumer. Tu vas construire le tien sur un fichier de ventes au format CSV :\n\n```\nville,produit,montant\nLyon,stylo,12.5\nLille,cahier,n/a\nLyon,cahier,30\n```\n\nTon rapport doit être **robuste** : une ligne au montant illisible ne doit pas faire planter le traitement. On l'écarte et on la compte.\n\nDécoupe le travail :\n1. lire avec `csv.DictReader(io.StringIO(texte))` ;\n2. convertir chaque montant (`try / except ValueError`) ;\n3. additionner par ville ;\n4. assembler le dictionnaire final.\n\nC'est exactement ce qu'on fait avant d'entraîner un modèle : préparer des données fiables et en avoir une vue d'ensemble.\n",
+      "exercice": {
+        "consigne": "Écris `rapport(texte_csv)` qui renvoie `{\"total\": ..., \"meilleure_ville\": ..., \"lignes_ignorees\": ...}` : le total des montants valides (arrondi à 2 décimales), la ville au plus gros total, et le nombre de lignes dont le montant est invalide.",
+        "code_depart": "import csv\nimport io\n\ndef rapport(texte_csv):\n    par_ville = {}\n    ignorees = 0\n    # Lis, convertis, additionne par ville\n\n    return {\"total\": 0, \"meilleure_ville\": None, \"lignes_ignorees\": ignorees}\n",
+        "tests": [
+          {
+            "desc": "Exemple de la leçon",
+            "code": "t = 'ville,produit,montant\\nLyon,stylo,12.5\\nLille,cahier,n/a\\nLyon,cahier,30'\nassert rapport(t) == {'total': 42.5, 'meilleure_ville': 'Lyon', 'lignes_ignorees': 1}"
+          },
+          {
+            "desc": "Plusieurs villes",
+            "code": "t = 'ville,produit,montant\\nA,x,10\\nB,y,25\\nA,z,10\\nC,w,1'\nr = rapport(t)\nassert r['meilleure_ville'] == 'B' and r['total'] == 46.0 and r['lignes_ignorees'] == 0"
+          },
+          {
+            "desc": "Montant vide ignoré",
+            "code": "t = 'ville,produit,montant\\nA,x,\\nB,y,3.333'\nassert rapport(t) == {'total': 3.33, 'meilleure_ville': 'B', 'lignes_ignorees': 1}"
+          }
+        ],
+        "indices": [
+          "for l in csv.DictReader(io.StringIO(texte_csv)): puis try: montant = float(l[\"montant\"]) except ValueError: ignorees += 1 ; continue",
+          "par_ville[l[\"ville\"]] = par_ville.get(l[\"ville\"], 0) + montant",
+          "meilleure = max(par_ville, key=par_ville.get) if par_ville else None"
+        ],
+        "solution": "import csv\nimport io\n\ndef rapport(texte_csv):\n    par_ville = {}\n    ignorees = 0\n    for l in csv.DictReader(io.StringIO(texte_csv)):\n        try:\n            montant = float(l[\"montant\"])\n        except ValueError:\n            ignorees += 1\n            continue\n        par_ville[l[\"ville\"]] = par_ville.get(l[\"ville\"], 0) + montant\n    meilleure = max(par_ville, key=par_ville.get) if par_ville else None\n    return {\"total\": round(sum(par_ville.values()), 2), \"meilleure_ville\": meilleure, \"lignes_ignorees\": ignorees}\n"
+      },
+      "quiz": [
+        {
+          "q": "Que renvoie `max(d, key=d.get)` pour un dictionnaire `d` ?",
+          "choix": [
+            "La plus grande valeur",
+            "La clé qui a la plus grande valeur",
+            "La dernière clé",
+            "Une erreur"
+          ],
+          "bonne": 1,
+          "explication": "max parcourt les clés et les compare selon d.get(cle), c'est-à-dire leur valeur."
+        },
+        {
+          "q": "Pourquoi compter les lignes ignorées ?",
+          "choix": [
+            "Pour faire joli",
+            "Pour savoir si le nettoyage écarte une part anormale des données",
+            "C'est obligatoire en CSV",
+            "Pour aller plus vite"
+          ],
+          "bonne": 1,
+          "explication": "Si beaucoup de lignes sont écartées, le résumé n'est plus représentatif : il faut le savoir."
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,588 @@
+{
+  "id": "ia_a_la_main_2",
+  "ordre": 5,
+  "icone": "🤖",
+  "titre": "L'IA à la main 2",
+  "description": "Les grandes familles d'algorithmes, toujours en Python pur : similarité, texte en nombres, mini modèle de langage, perceptron, régression logistique, k-means, arbres de décision et réseau à deux couches.",
+  "lecons": [
+    {
+      "id": "cosinus",
+      "titre": "Similarité cosinus",
+      "duree_min": 20,
+      "objectifs": [
+        "Mesurer si deux vecteurs « pointent dans la même direction »",
+        "Calculer la norme d'un vecteur",
+        "Comprendre son rôle dans la recherche par le sens"
+      ],
+      "explication": "La distance compare des positions. Pour comparer des **directions**, on utilise la **similarité cosinus** : le produit scalaire divisé par le produit des longueurs (les **normes**) des deux vecteurs.\n\n```python\nimport math\ndef norme(v):\n    return math.sqrt(sum(x * x for x in v))\n# cos = produit_scalaire(a, b) / (norme(a) * norme(b))\n```\n\nLe résultat est toujours entre -1 et 1 :\n- **1** : même direction (très similaires) ;\n- **0** : directions perpendiculaires (sans rapport) ;\n- **-1** : directions opposées.\n\n`[1, 2]` et `[2, 4]` ont une similarité de 1 : le second est juste « plus grand », mais il va dans la même direction.\n\nC'est la mesure reine pour les **embeddings** : les modèles de langage transforment chaque texte en vecteur, et deux textes de sens proche ont une similarité cosinus élevée. Les moteurs de recherche « intelligents » et les assistants qui fouillent tes documents (le RAG) reposent sur ce calcul.\n",
+      "exercice": {
+        "consigne": "Écris `similarite_cosinus(a, b)`, arrondie à 3 décimales. Si l'un des vecteurs est nul (norme 0), renvoie `0.0`.",
+        "code_depart": "import math\n\ndef similarite_cosinus(a, b):\n    pass\n",
+        "tests": [
+          {
+            "desc": "Même direction → 1.0",
+            "code": "assert similarite_cosinus([1, 2], [2, 4]) == 1.0"
+          },
+          {
+            "desc": "Perpendiculaires → 0.0",
+            "code": "assert similarite_cosinus([1, 0], [0, 3]) == 0.0"
+          },
+          {
+            "desc": "Opposés → -1.0",
+            "code": "assert similarite_cosinus([1, 0], [-5, 0]) == -1.0"
+          },
+          {
+            "desc": "Cas intermédiaire",
+            "code": "assert similarite_cosinus([1, 1], [1, 0]) == 0.707"
+          },
+          {
+            "desc": "Vecteur nul → 0.0",
+            "code": "assert similarite_cosinus([0, 0], [1, 2]) == 0.0"
+          }
+        ],
+        "indices": [
+          "Calcule le produit scalaire, puis la norme de chaque vecteur : math.sqrt(sum(x * x for x in v)).",
+          "Si une norme vaut 0, renvoie 0.0 avant de diviser.",
+          "return round(ps / (na * nb), 3)"
+        ],
+        "solution": "import math\n\ndef similarite_cosinus(a, b):\n    ps = sum(x * y for x, y in zip(a, b))\n    na = math.sqrt(sum(x * x for x in a))\n    nb = math.sqrt(sum(x * x for x in b))\n    if na == 0 or nb == 0:\n        return 0.0\n    return round(ps / (na * nb), 3)\n"
+      },
+      "quiz": [
+        {
+          "q": "Quelle est la norme du vecteur `[3, 4]` ?",
+          "choix": [
+            "7",
+            "5",
+            "12",
+            "25"
+          ],
+          "bonne": 1,
+          "explication": "racine(3² + 4²) = racine(25) = 5."
+        },
+        {
+          "q": "Deux textes de sens très proche ont des embeddings dont la similarité cosinus est…",
+          "choix": [
+            "Proche de -1",
+            "Proche de 0",
+            "Proche de 1",
+            "Exactement 2"
+          ],
+          "bonne": 2,
+          "explication": "Des vecteurs qui pointent dans la même direction ont un cosinus proche de 1."
+        }
+      ]
+    },
+    {
+      "id": "sac_de_mots",
+      "titre": "Transformer un texte en nombres",
+      "duree_min": 20,
+      "objectifs": [
+        "Construire un vocabulaire",
+        "Représenter un texte par un « sac de mots »",
+        "Voir les limites de cette représentation"
+      ],
+      "explication": "Un modèle ne lit pas : il calcule. Il faut donc transformer chaque texte en vecteur. La méthode la plus simple est le **sac de mots**.\n\nOn construit d'abord le **vocabulaire** : la liste triée de tous les mots rencontrés.\n\n```python\ntextes = [\"le chat dort\", \"le chien dort\"]\nvocab = [\"chat\", \"chien\", \"dort\", \"le\"]\n```\n\nPuis chaque texte devient le vecteur des **comptes** de chaque mot du vocabulaire :\n\n```python\n# \"le chat dort\"  → [1, 0, 1, 1]\n# \"le chien dort\" → [0, 1, 1, 1]\n```\n\nOn peut ensuite calculer des distances, des similarités, entraîner un classifieur… Limite : l'ordre des mots disparaît (« le chien mord l'homme » et « l'homme mord le chien » donnent le même sac), et le sens aussi. Les embeddings des modèles modernes corrigent ces défauts, mais l'idée de départ est la même : du texte vers des nombres.\n",
+      "exercice": {
+        "consigne": "Écris `vocabulaire(textes)` qui renvoie la liste triée des mots distincts (en minuscules), puis `vectoriser(texte, vocab)` qui renvoie la liste des comptes de chaque mot du vocabulaire dans le texte. Les mots absents du vocabulaire sont ignorés.",
+        "code_depart": "def vocabulaire(textes):\n    pass\n\ndef vectoriser(texte, vocab):\n    pass\n",
+        "tests": [
+          {
+            "desc": "Vocabulaire trié et sans doublon",
+            "code": "assert vocabulaire(['Le chat dort', 'le chien dort']) == ['chat', 'chien', 'dort', 'le']"
+          },
+          {
+            "desc": "Vectoriser un texte",
+            "code": "assert vectoriser('le chat dort', ['chat', 'chien', 'dort', 'le']) == [1, 0, 1, 1]"
+          },
+          {
+            "desc": "Compte les répétitions",
+            "code": "assert vectoriser('Le le LE chat', ['chat', 'le']) == [1, 3]"
+          },
+          {
+            "desc": "Ignore les mots inconnus",
+            "code": "assert vectoriser('un oiseau', ['chat', 'le']) == [0, 0]"
+          }
+        ],
+        "indices": [
+          "vocabulaire : un ensemble de tous les mots de tous les textes (en minuscules), puis sorted().",
+          "vectoriser : découpe le texte en minuscules, puis compte chaque mot du vocabulaire avec .count().",
+          "mots = texte.lower().split()\nreturn [mots.count(m) for m in vocab]"
+        ],
+        "solution": "def vocabulaire(textes):\n    return sorted({mot for t in textes for mot in t.lower().split()})\n\ndef vectoriser(texte, vocab):\n    mots = texte.lower().split()\n    return [mots.count(m) for m in vocab]\n"
+      },
+      "quiz": [
+        {
+          "q": "Avec le vocabulaire `[\"a\", \"b\", \"c\"]`, que donne le texte « c a c » ?",
+          "choix": [
+            "[1, 0, 2]",
+            "[2, 0, 1]",
+            "[1, 1, 1]",
+            "[\"c\", \"a\", \"c\"]"
+          ],
+          "bonne": 0,
+          "explication": "a apparaît 1 fois, b 0 fois, c 2 fois."
+        },
+        {
+          "q": "Quelle information le sac de mots perd-il ?",
+          "choix": [
+            "Le nombre de mots",
+            "L'ordre des mots",
+            "Les majuscules uniquement",
+            "Rien"
+          ],
+          "bonne": 1,
+          "explication": "Seuls les comptes restent : l'ordre, donc une partie du sens, disparaît."
+        }
+      ]
+    },
+    {
+      "id": "bigrammes",
+      "titre": "Un mini modèle de langage",
+      "duree_min": 25,
+      "objectifs": [
+        "Compter quels mots suivent quels mots",
+        "Prédire le mot suivant",
+        "Comprendre l'idée derrière les grands modèles de langage"
+      ],
+      "explication": "Un modèle de langage comme ChatGPT fait, au fond, une seule chose : **prédire le mot suivant**, encore et encore. Tu peux en coder une version minuscule en comptant les **bigrammes**, c'est-à-dire les paires de mots qui se suivent.\n\n```python\ntexte = \"le chat mange le poisson le chat dort\"\n# après \"le\"   : chat (2 fois), poisson (1 fois)\n# après \"chat\" : mange (1), dort (1)\n```\n\nOn range ces comptes dans un dictionnaire de dictionnaires :\n\n```python\nmodele = {\"le\": {\"chat\": 2, \"poisson\": 1}, \"chat\": {\"mange\": 1, \"dort\": 1}, ...}\n```\n\nPour prédire, on prend le suivant le plus fréquent. En répétant (« le » → « chat » → « mange » → …), le modèle **génère** du texte.\n\nLes vrais modèles regardent des milliers de mots en arrière au lieu d'un seul, et utilisent un réseau de neurones à la place d'un simple compteur. Mais l'objectif d'entraînement est le même : deviner la suite.\n",
+      "exercice": {
+        "consigne": "Écris `entrainer_bigrammes(texte)` qui renvoie `{mot: {suivant: nombre}}` (texte en minuscules), puis `mot_suivant(modele, mot)` qui renvoie le suivant le plus fréquent (en cas d'égalité, le premier par ordre alphabétique), ou `None` si le mot n'a jamais de suivant.",
+        "code_depart": "def entrainer_bigrammes(texte):\n    mots = texte.lower().split()\n    modele = {}\n    # Parcours les paires (mots[i], mots[i + 1])\n\n    return modele\n\ndef mot_suivant(modele, mot):\n    pass\n",
+        "tests": [
+          {
+            "desc": "Compte les suivants",
+            "code": "m = entrainer_bigrammes('le chat mange le poisson le chat dort')\nassert m['le'] == {'chat': 2, 'poisson': 1} and m['chat'] == {'mange': 1, 'dort': 1}"
+          },
+          {
+            "desc": "Prédit le suivant le plus fréquent",
+            "code": "m = entrainer_bigrammes('le chat mange le poisson le chat dort')\nassert mot_suivant(m, 'le') == 'chat'"
+          },
+          {
+            "desc": "Égalité → ordre alphabétique",
+            "code": "m = entrainer_bigrammes('a b a c')\nassert mot_suivant(m, 'a') == 'b'"
+          },
+          {
+            "desc": "Mot sans suivant → None",
+            "code": "m = entrainer_bigrammes('le chat dort')\nassert mot_suivant(m, 'dort') is None and mot_suivant(m, 'zèbre') is None"
+          },
+          {
+            "desc": "Ignore les majuscules",
+            "code": "m = entrainer_bigrammes('Il pleut il pleut IL neige')\nassert m['il'] == {'pleut': 2, 'neige': 1}"
+          }
+        ],
+        "indices": [
+          "for a, b in zip(mots, mots[1:]): donne chaque paire de mots consécutifs.",
+          "modele.setdefault(a, {}) crée le petit dictionnaire si besoin ; puis ajoute 1 au compte de b.",
+          "mot_suivant : si mot not in modele: return None ; sinon min(suivants, key=lambda s: (-suivants[s], s))"
+        ],
+        "solution": "def entrainer_bigrammes(texte):\n    mots = texte.lower().split()\n    modele = {}\n    for a, b in zip(mots, mots[1:]):\n        suivants = modele.setdefault(a, {})\n        suivants[b] = suivants.get(b, 0) + 1\n    return modele\n\ndef mot_suivant(modele, mot):\n    if mot not in modele:\n        return None\n    suivants = modele[mot]\n    return min(suivants, key=lambda s: (-suivants[s], s))\n"
+      },
+      "quiz": [
+        {
+          "q": "Que donne `list(zip([1, 2, 3], [2, 3]))` ?",
+          "choix": [
+            "[(1, 2), (2, 3)]",
+            "[(1, 2), (2, 3), (3, None)]",
+            "[1, 2, 2, 3]",
+            "Une erreur"
+          ],
+          "bonne": 0,
+          "explication": "zip s'arrête à la liste la plus courte : c'est l'astuce pour obtenir les paires consécutives."
+        },
+        {
+          "q": "Quelle est la tâche d'entraînement de base d'un modèle de langage ?",
+          "choix": [
+            "Traduire",
+            "Prédire le mot suivant",
+            "Corriger l'orthographe",
+            "Compter les mots"
+          ],
+          "bonne": 1,
+          "explication": "Toutes ses autres capacités émergent de cet objectif répété sur d'immenses quantités de texte."
+        }
+      ]
+    },
+    {
+      "id": "perceptron",
+      "titre": "Le perceptron qui apprend",
+      "duree_min": 30,
+      "objectifs": [
+        "Faire prédire un neurone à seuil",
+        "Appliquer la règle d'apprentissage du perceptron",
+        "Voir un modèle apprendre une fonction logique"
+      ],
+      "explication": "Le **perceptron** (1958) est le premier neurone artificiel capable d'apprendre. Il prédit 1 si la somme pondérée plus le biais est positive, sinon 0 :\n\n```python\ndef predire(poids, biais, x):\n    z = sum(w * xi for w, xi in zip(poids, x)) + biais\n    return 1 if z > 0 else 0\n```\n\nIl apprend en corrigeant ses erreurs, exemple par exemple :\n\n```python\nerreur = y - predire(poids, biais, x)     # 0 si juste, +1 ou -1 sinon\npoids = [w + pas * erreur * xi for w, xi in zip(poids, x)]\nbiais = biais + pas * erreur\n```\n\nQuand il a juste, rien ne bouge. Quand il se trompe, chaque poids est poussé dans la direction qui aurait évité l'erreur.\n\nOn part de poids nuls et on répète sur tous les exemples pendant plusieurs **époques**. Sur la fonction logique ET, il trouve en quelques époques des poids qui donnent les quatre bonnes réponses. Limite célèbre : il ne peut pas apprendre le OU EXCLUSIF (XOR), qui n'est pas séparable par une droite. Il faudra plusieurs couches pour ça.\n",
+      "exercice": {
+        "consigne": "Écris `entrainer_perceptron(exemples, epoques, pas)` : `exemples` est une liste de paires `(x, y)` où `x` est une liste de nombres et `y` vaut 0 ou 1. Pars de poids nuls et d'un biais nul, applique la règle d'apprentissage sur chaque exemple, à chaque époque, et renvoie `(poids, biais)`. La fonction `predire` est fournie.",
+        "code_depart": "def predire(poids, biais, x):\n    z = sum(w * xi for w, xi in zip(poids, x)) + biais\n    return 1 if z > 0 else 0\n\ndef entrainer_perceptron(exemples, epoques, pas):\n    poids = [0.0] * len(exemples[0][0])\n    biais = 0.0\n    # Pour chaque époque, pour chaque exemple : corriger l'erreur\n\n    return poids, biais\n",
+        "tests": [
+          {
+            "desc": "Apprend le ET logique",
+            "code": "et = [([0, 0], 0), ([0, 1], 0), ([1, 0], 0), ([1, 1], 1)]\nw, b = entrainer_perceptron(et, 20, 0.1)\nassert [predire(w, b, x) for x, y in et] == [0, 0, 0, 1]"
+          },
+          {
+            "desc": "Apprend le OU logique",
+            "code": "ou = [([0, 0], 0), ([0, 1], 1), ([1, 0], 1), ([1, 1], 1)]\nw, b = entrainer_perceptron(ou, 20, 0.1)\nassert [predire(w, b, x) for x, y in ou] == [0, 1, 1, 1]"
+          },
+          {
+            "desc": "Une époque fait bien les corrections",
+            "code": "w, b = entrainer_perceptron([([1, 0], 1)], 1, 0.5)\nassert w == [0.5, 0.0] and b == 0.5"
+          },
+          {
+            "desc": "0 époque → rien n'a changé",
+            "code": "assert entrainer_perceptron([([1, 1], 1)], 0, 0.1) == ([0.0, 0.0], 0.0)"
+          }
+        ],
+        "indices": [
+          "Deux boucles imbriquées : for _ in range(epoques): puis for x, y in exemples:",
+          "erreur = y - predire(poids, biais, x)",
+          "poids = [w + pas * erreur * xi for w, xi in zip(poids, x)]\nbiais = biais + pas * erreur"
+        ],
+        "solution": "def predire(poids, biais, x):\n    z = sum(w * xi for w, xi in zip(poids, x)) + biais\n    return 1 if z > 0 else 0\n\ndef entrainer_perceptron(exemples, epoques, pas):\n    poids = [0.0] * len(exemples[0][0])\n    biais = 0.0\n    for _ in range(epoques):\n        for x, y in exemples:\n            erreur = y - predire(poids, biais, x)\n            poids = [w + pas * erreur * xi for w, xi in zip(poids, x)]\n            biais = biais + pas * erreur\n    return poids, biais\n"
+      },
+      "quiz": [
+        {
+          "q": "Que se passe-t-il quand le perceptron prédit correctement un exemple ?",
+          "choix": [
+            "Les poids doublent",
+            "Rien ne change",
+            "Le biais revient à 0",
+            "L'entraînement s'arrête"
+          ],
+          "bonne": 1,
+          "explication": "L'erreur vaut 0, donc toutes les corrections valent 0."
+        },
+        {
+          "q": "Pourquoi un seul perceptron ne peut-il pas apprendre le XOR ?",
+          "choix": [
+            "Il manque d'époques",
+            "Les deux catégories ne sont pas séparables par une droite",
+            "Le pas est trop petit",
+            "XOR n'est pas une fonction"
+          ],
+          "bonne": 1,
+          "explication": "Un perceptron trace une frontière droite ; XOR demande au moins deux frontières, donc plusieurs neurones."
+        }
+      ]
+    },
+    {
+      "id": "logistique",
+      "titre": "La régression logistique",
+      "duree_min": 30,
+      "objectifs": [
+        "Prédire une probabilité avec la sigmoïde",
+        "Mesurer l'erreur avec la perte logarithmique",
+        "Faire un pas de descente de gradient"
+      ],
+      "explication": "Le perceptron répond 0 ou 1, sans nuance. La **régression logistique** répond une **probabilité** grâce à la sigmoïde : « 87 % de chances que cet e-mail soit un spam ».\n\n```python\np = sigmoide(sum(w * xi for w, xi in zip(poids, x)) + biais)\n```\n\nPour mesurer l'erreur d'une probabilité, on utilise la **perte logarithmique** (log loss) :\n\n```python\nimport math\nperte = -(y * math.log(p) + (1 - y) * math.log(1 - p))\n```\n\nSi la bonne réponse est 1 et que le modèle dit p = 0.9, la perte est faible (0.105). S'il dit p = 0.1 en étant sûr de lui, elle est forte (2.303) : les erreurs confiantes coûtent cher.\n\nBonne nouvelle : la pente de cette perte est très simple. Pour chaque poids, elle vaut `(p - y) * xi`, et pour le biais `p - y`. Un pas de descente de gradient s'écrit donc :\n\n```python\npoids = [w - pas * (p - y) * xi for w, xi in zip(poids, x)]\nbiais = biais - pas * (p - y)\n```\n\nC'est exactement ce que fait la dernière couche d'un réseau de neurones qui classe des images ou des textes.\n",
+      "exercice": {
+        "consigne": "Écris `perte_log(p, y)` (arrondie à 4 décimales) puis `pas_logistique(poids, biais, x, y, pas)` qui calcule la prédiction `p`, applique un pas de descente de gradient et renvoie `(nouveaux_poids, nouveau_biais)`, chaque valeur arrondie à 4 décimales. La fonction `sigmoide` est fournie.",
+        "code_depart": "import math\n\ndef sigmoide(z):\n    return 1 / (1 + math.exp(-z))\n\ndef perte_log(p, y):\n    pass\n\ndef pas_logistique(poids, biais, x, y, pas):\n    pass\n",
+        "tests": [
+          {
+            "desc": "perte_log(0.5, 1) renvoie 0.6931",
+            "code": "assert perte_log(0.5, 1) == 0.6931"
+          },
+          {
+            "desc": "Erreur confiante → grosse perte",
+            "code": "assert perte_log(0.9, 1) == 0.1054 and perte_log(0.9, 0) == 2.3026"
+          },
+          {
+            "desc": "Un pas depuis des poids nuls",
+            "code": "assert pas_logistique([0, 0], 0, [1, 2], 1, 0.5) == ([0.25, 0.5], 0.25)"
+          },
+          {
+            "desc": "Un pas qui fait baisser une prédiction trop haute",
+            "code": "assert pas_logistique([1.0], 1.0, [1], 0, 0.1) == ([0.9119], 0.9119)"
+          }
+        ],
+        "indices": [
+          "perte_log : return round(-(y * math.log(p) + (1 - y) * math.log(1 - p)), 4)",
+          "Dans pas_logistique, calcule d'abord p = sigmoide(somme pondérée + biais), puis l'écart p - y.",
+          "nouveaux = [round(w - pas * (p - y) * xi, 4) for w, xi in zip(poids, x)]\nreturn nouveaux, round(biais - pas * (p - y), 4)"
+        ],
+        "solution": "import math\n\ndef sigmoide(z):\n    return 1 / (1 + math.exp(-z))\n\ndef perte_log(p, y):\n    return round(-(y * math.log(p) + (1 - y) * math.log(1 - p)), 4)\n\ndef pas_logistique(poids, biais, x, y, pas):\n    p = sigmoide(sum(w * xi for w, xi in zip(poids, x)) + biais)\n    ecart = p - y\n    nouveaux = [round(w - pas * ecart * xi, 4) for w, xi in zip(poids, x)]\n    return nouveaux, round(biais - pas * ecart, 4)\n"
+      },
+      "quiz": [
+        {
+          "q": "La bonne réponse est 0 et le modèle prédit p = 0.99. La perte logarithmique est…",
+          "choix": [
+            "Très faible",
+            "Nulle",
+            "Très forte",
+            "Négative"
+          ],
+          "bonne": 2,
+          "explication": "Le modèle est presque certain et se trompe : -log(1 - 0.99) ≈ 4.6, une perte très élevée."
+        },
+        {
+          "q": "Que donne la régression logistique, contrairement au perceptron ?",
+          "choix": [
+            "Une probabilité entre 0 et 1",
+            "Toujours 0",
+            "Un texte",
+            "Une distance"
+          ],
+          "bonne": 0,
+          "explication": "Grâce à la sigmoïde, sa sortie se lit comme une probabilité."
+        }
+      ]
+    },
+    {
+      "id": "kmeans",
+      "titre": "Regrouper sans étiquettes : k-means",
+      "duree_min": 30,
+      "objectifs": [
+        "Distinguer apprentissage supervisé et non supervisé",
+        "Affecter chaque point au centre le plus proche",
+        "Recalculer les centres"
+      ],
+      "explication": "Jusqu'ici, chaque exemple avait une étiquette : c'est l'apprentissage **supervisé**. Parfois, on n'a que des données brutes et on cherche des **groupes naturels** : des profils de clients, des thèmes d'articles… C'est l'apprentissage **non supervisé**.\n\nL'algorithme **k-means** cherche k groupes. On part de k **centres** provisoires, puis on répète deux étapes :\n\n1. **affecter** : chaque point rejoint le centre le plus proche ;\n2. **recentrer** : chaque centre devient la moyenne des points de son groupe.\n\n```python\n# moyenne de points en 2D\ngroupe = [(1, 1), (1, 2), (2, 1)]\ncentre = (sum(p[0] for p in groupe) / 3, sum(p[1] for p in groupe) / 3)\n# (1.33, 1.33)\n```\n\nAprès quelques itérations, les centres ne bougent plus : les groupes sont trouvés. Si un centre ne reçoit aucun point, on le laisse où il est.\n",
+      "exercice": {
+        "consigne": "Écris `kmeans(points, centres, iterations)` : `points` et `centres` sont des listes de tuples de même dimension. Applique `iterations` fois les étapes « affecter » puis « recentrer », et renvoie la liste des centres finaux, chaque coordonnée arrondie à 2 décimales. Un centre sans point ne bouge pas. La fonction `distance2` (distance au carré) est fournie.",
+        "code_depart": "def distance2(a, b):\n    return sum((x - y) ** 2 for x, y in zip(a, b))\n\ndef kmeans(points, centres, iterations):\n    centres = [tuple(c) for c in centres]\n    for _ in range(iterations):\n        # 1. affecter chaque point au centre le plus proche\n        # 2. recalculer chaque centre (moyenne de son groupe)\n        pass\n    return [tuple(round(v, 2) for v in c) for c in centres]\n",
+        "tests": [
+          {
+            "desc": "Trouve deux groupes en 2D",
+            "code": "pts = [(1, 1), (1, 2), (2, 1), (8, 8), (9, 8), (8, 9)]\nassert kmeans(pts, [(0, 0), (10, 10)], 3) == [(1.33, 1.33), (8.33, 8.33)]"
+          },
+          {
+            "desc": "Fonctionne en 1 dimension",
+            "code": "assert kmeans([(1,), (2,), (10,), (11,)], [(0,), (5,)], 1) == [(1.5,), (10.5,)]"
+          },
+          {
+            "desc": "Un centre sans point ne bouge pas",
+            "code": "pts = [(1, 1), (2, 2)]\nassert kmeans(pts, [(0, 0), (100, 100)], 2) == [(1.5, 1.5), (100, 100)]"
+          },
+          {
+            "desc": "0 itération → centres de départ",
+            "code": "assert kmeans([(1, 1)], [(5, 5)], 0) == [(5, 5)]"
+          }
+        ],
+        "indices": [
+          "Étape 1 : groupes = [[] for _ in centres] ; pour chaque point, i = min(range(len(centres)), key=lambda k: distance2(p, centres[k])) puis groupes[i].append(p).",
+          "Étape 2 : pour chaque groupe non vide, nouveau centre = tuple(sum(coord) / len(groupe) for coord in zip(*groupe)).",
+          "centres = [tuple(sum(c) / len(g) for c in zip(*g)) if g else centres[i] for i, g in enumerate(groupes)]"
+        ],
+        "solution": "def distance2(a, b):\n    return sum((x - y) ** 2 for x, y in zip(a, b))\n\ndef kmeans(points, centres, iterations):\n    centres = [tuple(c) for c in centres]\n    for _ in range(iterations):\n        groupes = [[] for _ in centres]\n        for p in points:\n            i = min(range(len(centres)), key=lambda k: distance2(p, centres[k]))\n            groupes[i].append(p)\n        centres = [tuple(sum(c) / len(g) for c in zip(*g)) if g else centres[i]\n                   for i, g in enumerate(groupes)]\n    return [tuple(round(v, 2) for v in c) for c in centres]\n"
+      },
+      "quiz": [
+        {
+          "q": "Qu'est-ce qui caractérise l'apprentissage non supervisé ?",
+          "choix": [
+            "Il n'y a pas d'ordinateur",
+            "Les exemples n'ont pas d'étiquette",
+            "Il n'y a pas de données",
+            "Personne ne vérifie le code"
+          ],
+          "bonne": 1,
+          "explication": "Le modèle doit trouver lui-même une structure dans des données sans réponse attendue."
+        },
+        {
+          "q": "Que vaut `list(zip(*[(1, 2), (3, 4)]))` ?",
+          "choix": [
+            "[(1, 3), (2, 4)]",
+            "[(1, 2), (3, 4)]",
+            "[1, 2, 3, 4]",
+            "[(4, 6)]"
+          ],
+          "bonne": 0,
+          "explication": "zip(*liste) regroupe les premières coordonnées ensemble, puis les secondes : pratique pour faire des moyennes par dimension."
+        }
+      ]
+    },
+    {
+      "id": "arbre",
+      "titre": "Arbre de décision : la meilleure question",
+      "duree_min": 30,
+      "objectifs": [
+        "Mesurer le mélange d'un groupe avec l'impureté de Gini",
+        "Tester tous les seuils possibles",
+        "Choisir la question qui sépare le mieux"
+      ],
+      "explication": "Un **arbre de décision** classe en posant une suite de questions : « âge ≤ 30 ? », puis « revenu ≤ 2000 ? »… Pour construire l'arbre, il faut savoir choisir **la meilleure question** à chaque étape.\n\nOn mesure à quel point un groupe est mélangé avec l'**impureté de Gini** : 1 moins la somme des carrés des proportions de chaque catégorie.\n\n```python\n# [\"a\", \"a\", \"a\", \"a\"] → 1 - 1²          = 0     (pur)\n# [\"a\", \"a\", \"b\", \"b\"] → 1 - (0.5² + 0.5²) = 0.5   (très mélangé)\n```\n\nUne question « valeur ≤ seuil ? » coupe les données en deux groupes. Sa qualité est la **Gini pondérée** des deux groupes (chacun compte selon sa taille) :\n\n```python\nscore = len(gauche) / n * gini(gauche) + len(droite) / n * gini(droite)\n```\n\nOn essaie chaque seuil possible et on garde celui qui donne le score le plus bas. L'arbre recommence ensuite dans chaque groupe. Les forêts aléatoires et le boosting, très utilisés en entreprise, sont faits de centaines de ces arbres.\n",
+      "exercice": {
+        "consigne": "Écris `gini(etiquettes)` (arrondie à 3 décimales) puis `meilleur_seuil(valeurs, etiquettes)` : essaie comme seuil chaque valeur distincte par ordre croissant (gauche = valeurs ≤ seuil, droite = le reste ; on saute les seuils qui laissent la droite vide) et renvoie le seuil de Gini pondérée minimale (le plus petit en cas d'égalité), ou `None` si aucune coupure n'est possible.",
+        "code_depart": "from collections import Counter\n\ndef gini(etiquettes):\n    pass\n\ndef meilleur_seuil(valeurs, etiquettes):\n    pass\n",
+        "tests": [
+          {
+            "desc": "Groupe pur → 0",
+            "code": "assert gini(['a', 'a', 'a']) == 0"
+          },
+          {
+            "desc": "Groupe moitié-moitié → 0.5",
+            "code": "assert gini(['a', 'b', 'a', 'b']) == 0.5"
+          },
+          {
+            "desc": "Trois catégories",
+            "code": "assert gini(['a', 'b', 'c']) == 0.667"
+          },
+          {
+            "desc": "Trouve la coupure évidente",
+            "code": "assert meilleur_seuil([1, 2, 3, 10, 11, 12], ['a', 'a', 'a', 'b', 'b', 'b']) == 3"
+          },
+          {
+            "desc": "Valeurs dans le désordre",
+            "code": "assert meilleur_seuil([5, 1, 7, 2], ['x', 'y', 'x', 'y']) == 2"
+          },
+          {
+            "desc": "Aucune coupure possible → None",
+            "code": "assert meilleur_seuil([4, 4], ['a', 'b']) is None"
+          }
+        ],
+        "indices": [
+          "gini : n = len(etiquettes) ; return round(1 - sum((c / n) ** 2 for c in Counter(etiquettes).values()), 3)",
+          "Pour chaque seuil s de sorted(set(valeurs)) : gauche = [e for v, e in zip(valeurs, etiquettes) if v <= s], droite = le reste ; si droite est vide, continue.",
+          "Garde le seuil si son score est strictement plus petit que le meilleur score trouvé jusque-là (commence avec meilleur = None)."
+        ],
+        "solution": "from collections import Counter\n\ndef gini(etiquettes):\n    n = len(etiquettes)\n    return round(1 - sum((c / n) ** 2 for c in Counter(etiquettes).values()), 3)\n\ndef meilleur_seuil(valeurs, etiquettes):\n    n = len(valeurs)\n    meilleur, meilleur_score = None, None\n    for s in sorted(set(valeurs)):\n        gauche = [e for v, e in zip(valeurs, etiquettes) if v <= s]\n        droite = [e for v, e in zip(valeurs, etiquettes) if v > s]\n        if not droite:\n            continue\n        score = len(gauche) / n * gini(gauche) + len(droite) / n * gini(droite)\n        if meilleur_score is None or score < meilleur_score:\n            meilleur, meilleur_score = s, score\n    return meilleur\n"
+      },
+      "quiz": [
+        {
+          "q": "Quelle est l'impureté de Gini du groupe `[\"oui\", \"oui\", \"oui\", \"non\"]` ?",
+          "choix": [
+            "0",
+            "0.25",
+            "0.375",
+            "0.5"
+          ],
+          "bonne": 2,
+          "explication": "1 - (0.75² + 0.25²) = 1 - 0.625 = 0.375."
+        },
+        {
+          "q": "Une « bonne question » dans un arbre de décision…",
+          "choix": [
+            "Donne deux groupes les plus purs possible",
+            "Coupe les données en deux moitiés égales",
+            "Utilise toujours la première colonne",
+            "Augmente l'impureté"
+          ],
+          "bonne": 0,
+          "explication": "On cherche la coupure après laquelle chaque groupe est le moins mélangé possible."
+        }
+      ]
+    },
+    {
+      "id": "xor",
+      "titre": "Un réseau à deux couches",
+      "duree_min": 30,
+      "objectifs": [
+        "Calculer une couche de neurones",
+        "Enchaîner deux couches",
+        "Voir comment une couche cachée résout le XOR"
+      ],
+      "explication": "Le XOR (« ou exclusif ») vaut 1 quand **exactement une** des deux entrées vaut 1. Aucun neurone seul ne sait le faire. Avec une **couche cachée**, c'est possible.\n\nUne **couche** est un groupe de neurones qui reçoivent les mêmes entrées. Chacun a ses propres poids et son biais, et la couche renvoie la liste de leurs sorties :\n\n```python\ndef couche(entrees, poids, biais):\n    return [sigmoide(sum(x * w for x, w in zip(entrees, ws)) + b)\n            for ws, b in zip(poids, biais)]\n```\n\nLe XOR se décompose en « (a OU b) ET NON (a ET b) ». On construit :\n- une couche cachée de deux neurones : un qui calcule OU, un qui calcule NON-ET ;\n- une couche de sortie d'un neurone qui calcule le ET de leurs deux réponses.\n\n```python\ncachee = couche([a, b], [[20, 20], [-20, -20]], [-10, 30])\nsortie = couche(cachee, [[20, 20]], [-30])[0]\n```\n\nIci, on a choisi les poids à la main. Dans un vrai réseau, ils sont **appris** par descente de gradient : c'est la **rétropropagation**, qui calcule la pente de l'erreur couche par couche, de la sortie vers l'entrée.\n",
+      "exercice": {
+        "consigne": "Écris `couche(entrees, poids, biais)` qui renvoie la liste des sorties sigmoïdes de chaque neurone (`poids` est une liste de listes : une par neurone), puis `xor(a, b)` qui utilise les poids de la leçon et renvoie la sortie arrondie à l'entier le plus proche (`round`).",
+        "code_depart": "import math\n\ndef sigmoide(z):\n    return 1 / (1 + math.exp(-z))\n\ndef couche(entrees, poids, biais):\n    pass\n\ndef xor(a, b):\n    pass\n",
+        "tests": [
+          {
+            "desc": "Une couche d'un neurone",
+            "code": "assert [round(v, 4) for v in couche([1, 0], [[1, 1]], [0])] == [0.7311]"
+          },
+          {
+            "desc": "Une couche de deux neurones",
+            "code": "r = couche([1, 2], [[1, 0], [0, -1]], [0, 2])\nassert [round(v, 4) for v in r] == [0.7311, 0.5]"
+          },
+          {
+            "desc": "Table de vérité du XOR",
+            "code": "assert [xor(0, 0), xor(0, 1), xor(1, 0), xor(1, 1)] == [0, 1, 1, 0]"
+          }
+        ],
+        "indices": [
+          "couche : une compréhension sur zip(poids, biais) ; pour chaque neurone, sigmoide(somme pondérée + b).",
+          "xor : cachee = couche([a, b], [[20, 20], [-20, -20]], [-10, 30])",
+          "sortie = couche(cachee, [[20, 20]], [-30])[0]\nreturn round(sortie)"
+        ],
+        "solution": "import math\n\ndef sigmoide(z):\n    return 1 / (1 + math.exp(-z))\n\ndef couche(entrees, poids, biais):\n    return [sigmoide(sum(x * w for x, w in zip(entrees, ws)) + b) for ws, b in zip(poids, biais)]\n\ndef xor(a, b):\n    cachee = couche([a, b], [[20, 20], [-20, -20]], [-10, 30])\n    sortie = couche(cachee, [[20, 20]], [-30])[0]\n    return round(sortie)\n"
+      },
+      "quiz": [
+        {
+          "q": "Que vaut XOR(1, 1) ?",
+          "choix": [
+            "1",
+            "0",
+            "2",
+            "Indéfini"
+          ],
+          "bonne": 1,
+          "explication": "XOR vaut 1 seulement si exactement une entrée vaut 1."
+        },
+        {
+          "q": "Comment s'appelle l'algorithme qui apprend les poids de toutes les couches ?",
+          "choix": [
+            "Le tri rapide",
+            "La rétropropagation (avec descente de gradient)",
+            "Le k-means",
+            "La normalisation"
+          ],
+          "bonne": 1,
+          "explication": "La rétropropagation calcule la pente de l'erreur pour chaque poids, de la sortie vers l'entrée."
+        }
+      ]
+    },
+    {
+      "id": "projet_sentiments",
+      "titre": "Mini-projet : détecter les avis positifs",
+      "duree_min": 40,
+      "objectifs": [
+        "Entraîner un classifieur de texte simple",
+        "Prédire sur de nouveaux textes",
+        "Comprendre ses limites"
+      ],
+      "explication": "Dernier projet du module : un **détecteur de sentiment** qui lit un avis et dit s'il est positif ou négatif, à partir d'exemples étiquetés.\n\n```python\nexemples = [\n    (\"super film génial\", \"positif\"),\n    (\"film nul\", \"négatif\"),\n]\n```\n\nL'idée la plus simple qui marche : donner un **score** à chaque mot.\n- Chaque fois qu'un mot apparaît dans un avis positif : +1.\n- Chaque fois qu'il apparaît dans un avis négatif : -1.\n\n« génial » obtient un score positif, « nul » un score négatif, et « film », présent partout, se retrouve vers 0.\n\nPour prédire, on additionne les scores des mots du nouvel avis : si le total est strictement positif, l'avis est « positif », sinon « négatif ». Les mots jamais vus comptent 0.\n\nLimites : « pas génial » est vu comme positif, car la négation est ignorée. Les modèles modernes lisent les mots **dans leur contexte**, mais le principe d'apprendre à partir d'exemples reste le même.\n",
+      "exercice": {
+        "consigne": "Écris `entrainer(exemples)` qui renvoie le dictionnaire `{mot: score}` (mots en minuscules, +1 par apparition dans un avis \"positif\", -1 dans un avis \"négatif\"), puis `predire(modele, texte)` qui renvoie \"positif\" si la somme des scores est strictement positive, sinon \"négatif\".",
+        "code_depart": "def entrainer(exemples):\n    scores = {}\n    for texte, etiquette in exemples:\n        pass\n    return scores\n\ndef predire(modele, texte):\n    pass\n",
+        "tests": [
+          {
+            "desc": "Scores des mots",
+            "code": "ex = [('super film génial', 'positif'), ('vraiment génial', 'positif'), ('film nul', 'négatif'), ('nul et ennuyeux', 'négatif')]\nm = entrainer(ex)\nassert m['génial'] == 2 and m['nul'] == -2 and m['film'] == 0"
+          },
+          {
+            "desc": "Prédit un avis positif",
+            "code": "ex = [('super film génial', 'positif'), ('film nul', 'négatif')]\nassert predire(entrainer(ex), 'Un film GÉNIAL') == 'positif'"
+          },
+          {
+            "desc": "Prédit un avis négatif",
+            "code": "ex = [('super film génial', 'positif'), ('nul et ennuyeux', 'négatif')]\nassert predire(entrainer(ex), 'ennuyeux et nul') == 'négatif'"
+          },
+          {
+            "desc": "Mots inconnus → négatif (total 0)",
+            "code": "assert predire(entrainer([('top', 'positif')]), 'aucune idée') == 'négatif'"
+          }
+        ],
+        "indices": [
+          "Dans entrainer : delta = 1 if etiquette == \"positif\" else -1, puis pour chaque mot de texte.lower().split() : scores[mot] = scores.get(mot, 0) + delta.",
+          "Dans predire : total = sum(modele.get(mot, 0) for mot in texte.lower().split())",
+          "return \"positif\" if total > 0 else \"négatif\""
+        ],
+        "solution": "def entrainer(exemples):\n    scores = {}\n    for texte, etiquette in exemples:\n        delta = 1 if etiquette == \"positif\" else -1\n        for mot in texte.lower().split():\n            scores[mot] = scores.get(mot, 0) + delta\n    return scores\n\ndef predire(modele, texte):\n    total = sum(modele.get(mot, 0) for mot in texte.lower().split())\n    return \"positif\" if total > 0 else \"négatif\"\n"
+      },
+      "quiz": [
+        {
+          "q": "Pourquoi le mot « film » finit-il avec un score proche de 0 ?",
+          "choix": [
+            "Il est trop court",
+            "Il apparaît autant dans les avis positifs que négatifs",
+            "Il est ignoré",
+            "C'est un nom"
+          ],
+          "bonne": 1,
+          "explication": "Les +1 et les -1 se compensent : le mot n'aide pas à décider."
+        },
+        {
+          "q": "Comment ce modèle classe-t-il « pas génial » ?",
+          "choix": [
+            "Négatif, il comprend la négation",
+            "Positif, car « génial » a un bon score et la négation est ignorée",
+            "Il refuse de répondre",
+            "Neutre"
+          ],
+          "bonne": 1,
+          "explication": "Chaque mot est compté séparément : c'est la grande limite des modèles « sac de mots »."
+        }
+      ]
+    }
+  ]
+}
