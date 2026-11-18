@@ -15,6 +15,8 @@ import time
 import urllib.error
 import urllib.request
 
+from . import correcteur
+
 SYSTEME = """Tu es un tuteur de programmation Python bienveillant pour un débutant francophone.
 Règles strictes :
 1. Réponds en français, en tutoyant, en 4 phrases maximum.
@@ -34,6 +36,7 @@ class Tuteur:
         self.timeout = timeout
         self._dispo = None
         self._dispo_ts = 0
+        self._think_ok = None  # l'option "think": false est-elle acceptée par Ollama / le modèle ?
 
     # ------------------------------------------------------------ Ollama
     def disponible(self):
@@ -79,9 +82,15 @@ class Tuteur:
         }
         # Les modèles « qui réfléchissent » (Qwen 3.x…) sont beaucoup plus rapides sans réflexion.
         # Si la version d'Ollama ou le modèle refuse l'option, on réessaie sans.
-        try:
-            texte = self._appel({**base, "think": False})
-        except urllib.error.HTTPError:
+        # On retient le refus pour ne pas payer une requête de plus à chaque question.
+        if self._think_ok is not False:
+            try:
+                texte = self._appel({**base, "think": False})
+                self._think_ok = True
+            except urllib.error.HTTPError:
+                self._think_ok = False
+                texte = self._appel(base)
+        else:
             texte = self._appel(base)
         # Si le modèle réfléchit quand même à voix haute, on retire ce passage.
         texte = re.sub(r"<think>.*?</think>", "", texte, flags=re.S)
@@ -122,6 +131,27 @@ class Tuteur:
                 return True
         return False
 
+    @classmethod
+    def _code_en_trop(cls, reponse, deja_vu, tests):
+        """Vrai si la réponse contient un bloc de code qui en dit trop, même réécrit autrement.
+
+        Les petits modèles (surtout les « coder ») recopient la solution avec d'autres noms
+        de variables : la comparaison ligne à ligne ne le voit pas. Donc :
+        1. un bloc qui contient une fonction est exécuté contre les tests de l'exercice :
+           s'il les réussit, c'est la solution ;
+        2. un bloc qui apporte 2 lignes de code nouvelles ou plus est refusé : un tuteur
+           donne une piste, pas le code (corriger UNE ligne de l'élève reste permis).
+        """
+        vu = cls._compact(deja_vu)
+        for bloc in re.findall(r"```[a-zA-Z]*\n?(.*?)```", reponse, flags=re.S):
+            if "def " in bloc and tests and correcteur.verifier(bloc, tests, timeout=3)["reussi"]:
+                return True
+            nouvelles = [l for l in bloc.splitlines()
+                         if l.strip() and not l.strip().startswith("#") and cls._compact(l) not in vu]
+            if len(nouvelles) >= 2:
+                return True
+        return False
+
     # ------------------------------------------------------------ contexte
     @staticmethod
     def piste(lecon, etat, resultat):
@@ -147,16 +177,40 @@ class Tuteur:
         return "Tests qui échouent : " + " ; ".join(echecs[:3])
 
     # ------------------------------------------------------------ réponses
+    # Questions du type « c'est bon ? » : quand tout est réussi, le code y répond seul.
+    VERIFICATION = re.compile(
+        r"^\s*(est-ce que\s+)?(c'?est|ça|ca|c)?\s*(bon|juste|correct|ok|fini|réussi|reussi|bien|valide|good|marche|fonctionne)\b"
+        r"|^\s*j'?ai (bon|réussi|reussi|fini)\b|^\s*je suis bloqu", re.I)
+    # Sur un exercice réussi, le petit modèle invente parfois un défaut : on le détecte.
+    DEFAUT_INVENTE = re.compile(r"oubli|erreur|manqu|attention|corrig|problème|probleme|\.len\(", re.I)
+
     def repondre(self, lecon, etat, code, resultat, question, historique):
         piste = self.piste(lecon, etat, resultat)
-        contexte = (
-            f"EXERCICE : {lecon['exercice']['consigne']}\n\n"
-            f"CODE DE L'ÉLÈVE :\n```python\n{code[-1500:]}\n```\n\n"
-            f"{self._resume_resultat(resultat)}\n\n"
-            f"PISTE (à reformuler, sans donner plus) : {piste}"
-        )
+        reussi = bool(resultat and resultat.get("reussi"))
+
+        if reussi and (len(question.strip()) < 15 or self.VERIFICATION.search(question)):
+            return {"texte": self._sans_ia(resultat, piste), "source": "regles"}
         if not self.disponible():
             return {"texte": self._sans_ia(resultat, piste), "source": "regles"}
+
+        if reussi:
+            # Exercice réussi + vraie question (« pourquoi elif ? ») : pas de piste, réponse courte.
+            # Le cours de la leçon sert de référence : sans lui, le petit modèle invente des explications.
+            contexte = (
+                f"COURS DE RÉFÉRENCE (vrai, ne le contredis pas) :\n{lecon['explication'][:1500]}\n\n"
+                f"EXERCICE : {lecon['exercice']['consigne']}\n\n"
+                f"CODE DE L'ÉLÈVE :\n```python\n{code[-1500:]}\n```\n\n"
+                "Tous les tests passent : l'exercice est réussi, le code est correct. "
+                "Réponds à partir du COURS DE RÉFÉRENCE et du code de l'élève. "
+                "Réponds seulement à la question, en 3 phrases maximum. Ne cherche pas de défaut et ne propose pas d'autre exercice."
+            )
+        else:
+            contexte = (
+                f"EXERCICE : {lecon['exercice']['consigne']}\n\n"
+                f"CODE DE L'ÉLÈVE :\n```python\n{code[-1500:]}\n```\n\n"
+                f"{self._resume_resultat(resultat)}\n\n"
+                f"PISTE (à reformuler, sans donner plus) : {piste}"
+            )
 
         messages = [{"role": "system", "content": SYSTEME}]
         for h in historique[-4:]:
@@ -168,7 +222,10 @@ class Tuteur:
             return {"texte": self._sans_ia(resultat, piste), "source": "regles"}
         ex = lecon["exercice"]
         deja_vu = "\n".join([ex["code_depart"], code, piste, *ex["indices"][:etat["indices_vus"]]])
-        if not texte or self._fuite_solution(texte, ex["solution"], deja_vu):
+        if reussi and self.DEFAUT_INVENTE.search(texte or ""):
+            return {"texte": self._sans_ia(resultat, piste), "source": "regles"}
+        if (not texte or self._fuite_solution(texte, ex["solution"], deja_vu)
+                or self._code_en_trop(texte, deja_vu, ex["tests"])):
             return {"texte": self._sans_ia(resultat, piste), "source": "regles"}
         return {"texte": texte[:1200], "source": "ia"}
 
@@ -217,7 +274,9 @@ class Tuteur:
             if echecs:
                 morceaux.append(f"Ton code tourne, mais ce test ne passe pas encore : « {echecs[0]} ».")
             else:
-                morceaux.append("Tous les tests passent, bravo !")
+                morceaux.append("Oui, tous les tests passent : bravo, l'exercice est réussi !")
+                morceaux.append("Tu peux passer à la leçon suivante. Avant, relis ton code et explique-toi à voix haute "
+                                "ce que fait chaque ligne : c'est la meilleure façon de retenir.")
                 return " ".join(morceaux)
         morceaux.append(f"Piste : {piste}")
         morceaux.append("Essaie, relance les tests, et dis-moi ce que tu obtiens.")

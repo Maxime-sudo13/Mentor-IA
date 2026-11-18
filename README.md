@@ -74,7 +74,10 @@ Pour comparer les modèles (ou vérifier un changement de prompt), lance :
 
 ```
 python outils/tester_tuteur.py
+python outils/tester_tuteur.py --modele qwen2.5:7b
 ```
+
+Résultat des essais (novembre 2026) : **`qwen3.5:4b` est le meilleur tuteur** parmi ceux testés. Un plus gros modèle n'est pas forcément meilleur, et les modèles spécialisés en code (« coder ») sont même moins bons ici : entraînés à écrire du code, ils ont tendance à donner la solution au lieu de guider. Les garde-fous de l'application bloquent ces réponses, mais l'élève reçoit alors la réponse guidée écrite à l'avance plutôt qu'une aide personnalisée.
 
 ## Limites connues du prototype
 
